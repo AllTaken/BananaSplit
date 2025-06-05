@@ -308,7 +308,7 @@
             // 
             MultiplierInput.Location = new System.Drawing.Point(285, 249);
             MultiplierInput.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
-            MultiplierInput.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            MultiplierInput.Minimum = new decimal(new int[] { 0, 0, 0, 0 });
             MultiplierInput.Name = "MultiplierInput";
             MultiplierInput.Size = new System.Drawing.Size(131, 39);
             MultiplierInput.TabIndex = 25;
