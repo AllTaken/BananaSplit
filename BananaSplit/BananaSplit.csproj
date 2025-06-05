@@ -4,6 +4,8 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <Version>3.2.0</Version>
+    <ApplicationIcon>Iconicon-Veggies-Bananas.512.ico</ApplicationIcon>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="ffmpeg.exe" />
@@ -12,6 +14,9 @@
     <None Remove="mkvinfo.exe" />
     <None Remove="mkvmerge.exe" />
     <None Remove="mkvpropedit.exe" />
+    <Content Include="Iconicon-Veggies-Bananas.512.ico" />
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.5" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
   <ItemGroup>

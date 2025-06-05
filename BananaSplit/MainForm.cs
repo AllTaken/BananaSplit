@@ -14,488 +14,117 @@ namespace BananaSplit
 {
     public partial class MainForm : Form
     {
-        private SettingsForm SettingsForm;
-        private LogForm LogForm;
+        private readonly SettingsForm SettingsForm;
+        private readonly QueueManager queueManager;
+        private readonly Processor processor;
+        private readonly List<object> controlsToLock;
 
-        private List<QueueItem> QueueItems { get; set; }
-        private Thread ScanningThread;
-        private Thread ProcessingThread;
-        private FFMPEG FFMPEG;
-        private MKVToolNix MKVToolNix;
+        public List<QueueItem> QueueItems { get; set; } = [];
 
-        private string[] SupportedExtensions =
+        public MainForm(SettingsForm settingsForm, QueueManager queueManager, StatusBarManager statusBarManager, LogForm logForm, Processor processor)
         {
-            ".avi",
-            ".flv",
-            ".m4p",
-            ".m4v",
-            ".mkv",
-            ".mov",
-            ".mp2",
-            ".mp4",
-            ".mpe",
-            ".mpeg",
-            ".mpg",
-            ".mpv",
-            ".ogg",
-            ".ts",
-            ".webm",
-            ".wmv"
-        };
-
-        public MainForm()
-        {
-            InitializeComponent();
-            QueueItems = new List<QueueItem>();
+            InitializeComponent();            
+            SettingsForm = settingsForm;
+            queueManager.MainForm = this;
+            statusBarManager.MainForm = this;
+            this.queueManager = queueManager;
+            logForm.MainForm = this;
+            this.processor = processor;
+            controlsToLock = [
+                ProcessQueueButton,
+                QueueListContextMenuProcess,
+                QueueItemContextMenuProcess,
+                QueueListContextMenuRemove,
+                QueueItemContextMenuRemove,
+                AddFilesToQueueMenuItem,
+                AddFolderToQueueMenuItem
+            ];
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
             // Menu Items
-            AddFilesToQueueMenuItem.Click += AddFilesToQueueDialog;
-            AddFolderToQueueMenuItem.Click += AddFolderToQueueDialog;
+            AddFilesToQueueMenuItem.Click += queueManager.AddFilesToQueueDialog;
+            AddFolderToQueueMenuItem.Click += queueManager.AddFolderToQueueDialog;
             SettingsMenuItem.Click += OpenSettingsForm;
 
             // Queue List
             QueueList.SelectedIndexChanged += RenderReferenceImagesListView;
-            QueueList.MouseUp += OpenQueueItemContextMenu;
+            QueueList.MouseUp += queueManager.OpenQueueItemContextMenu;
             QueueList.KeyDown += QueueListKeyDownHandler;
             QueueItemContextMenuProcess.Click += ProcessQueueItem;
-            QueueItemContextMenuRemove.Click += RemoveQueueItem;
+            QueueItemContextMenuRemove.Click += queueManager.RemoveQueueItem;
             QueueListContextMenuProcess.Click += ProcessQueue;
-            QueueListContextMenuRemove.Click += RemoveQueueList;
+            QueueListContextMenuRemove.Click += queueManager.RemoveQueueList;
 
             // Other
             ProcessQueueButton.Click += ProcessQueue;
-            QueueList.Resize += AutoSizeQueueList;
+            QueueList.Resize += queueManager.AutoSizeQueueList;
 
             // Drag and Drop
             this.AllowDrop = true;
-            this.DragOver += AddDragOverItemToQueueDialog;
-            this.DragDrop += AddDragDropItemToQueueDialog;
-
-            SettingsForm = new SettingsForm();
-            LogForm = new LogForm();
-
-            FFMPEG = new FFMPEG();
-            MKVToolNix = new MKVToolNix();
+            this.DragOver += QueueManager.SetDragOverEffect;
+            this.DragDrop += queueManager.AddDragDropItemsToQueue;
         }
 
-        private void AutoSizeQueueList(object sender, EventArgs e)
-        {
-            QueueList.Columns[0].Width = QueueList.Width - 4;
-        }
-
-        private void OpenQueueItemContextMenu(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right && QueueList.FocusedItem != null && QueueList.FocusedItem.Bounds.Contains(e.Location))
-            {
-                QueueItemContextMenu.Tag = QueueList.FocusedItem.Tag;
-                QueueItemContextMenu.Show(Cursor.Position);
-            }
-            else if (e.Button == MouseButtons.Right)
-            {
-                QueueListContextMenu.Show(Cursor.Position);
-            }
-        }
-
-        private void AddFilesToQueueDialog(object sender, EventArgs e)
-        {
-            var fileContent = string.Empty;
-            var filePath = string.Empty;
-
-            using (OpenFileDialog openFileDialog = new OpenFileDialog())
-            {
-                openFileDialog.Filter = $"Video Files (*{String.Join(",*", SupportedExtensions)})|*{String.Join(";*", SupportedExtensions)}";
-                openFileDialog.FilterIndex = 2;
-                openFileDialog.RestoreDirectory = true;
-                openFileDialog.Multiselect = true;
-
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    string[] files = openFileDialog.FileNames;
-
-                    bool addedAnything = false;
-
-                    foreach (var file in files)
-                    {
-                        addedAnything |= AddToQueue(file);
-                    }
-
-                    if (addedAnything)
-                    {
-                        ScanningThread = new Thread(() =>
-                        {
-                            ScanQueueItems();
-                        });
-
-                        ScanningThread.Start();
-                    }
-                }
-            }
-        }
-
-        private void AddFolderToQueueDialog(object sender, EventArgs e)
-        {
-            using (FolderBrowserDialog openFolderDialog = new FolderBrowserDialog())
-            {
-                var result = openFolderDialog.ShowDialog();
-
-                if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(openFolderDialog.SelectedPath))
-                {
-                    string[] files = Directory.GetFiles(openFolderDialog.SelectedPath);
-
-                    bool addedAnything = false;
-
-                    foreach (var file in files)
-                    {
-                        addedAnything |= AddToQueue(file);
-                    }
-
-                    if (addedAnything)
-                    {
-                        ScanningThread = new Thread(() =>
-                        {
-                            ScanQueueItems();
-                        });
-
-                        ScanningThread.Start();
-                    }
-                }
-            }
-        }
-
-
-        private bool AddToQueue(string path)
-        {
-            bool addedAnything = false;
-            if (File.Exists(path) && SupportedExtensions.Contains(Path.GetExtension(path).ToLower()))
-            {
-                QueueItems.Add(new QueueItem(path));
-                addedAnything = true;
-            }
-            else if (Directory.Exists(path))
-            {
-                foreach (var file in Directory.GetFiles(path))
-                {
-                    if (File.Exists(file) && SupportedExtensions.Contains(Path.GetExtension(file).ToLower()))
-                    {
-                        QueueItems.Add(new QueueItem(file));
-                        addedAnything = true;
-                    }
-                }
-
-                foreach (var folder in Directory.GetDirectories(path))
-                {
-                    addedAnything |= AddToQueue(folder);
-                }
-            }
-
-            return addedAnything;
-        }
-
-
-        private void AddDragOverItemToQueueDialog(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                e.Effect = DragDropEffects.Link;
-            }
-            else
-            {
-                e.Effect = DragDropEffects.None;
-            }
-        }
-
-        private void AddDragDropItemToQueueDialog(object sender, DragEventArgs e)
-        {
-            bool addedAnything = false;
-
-            var files = ((DataObject)e.Data).GetFileDropList().Cast<string>().ToList();
-
-            if (files != null && files.Any())
-            {
-                foreach (string file in files)
-                {
-                    addedAnything |= AddToQueue(file);
-                }
-
-                if (addedAnything)
-                {
-                    ScanningThread = new Thread(() =>
-                    {
-                        ScanQueueItems();
-                    });
-
-                    ScanningThread.Start();
-                }
-            }
-        }
-
-        private void ShowLog()
-        {
-            Invoke(new MethodInvoker(
-               delegate ()
-               {
-                   if (!LogForm.Visible)
-                   {
-                       LogForm.Show();
-                   }
-               })
-           );
-        }
-
-        private void Log(string text)
-        {
-            Invoke(new MethodInvoker(
-               delegate ()
-               {
-                   if (LogForm.Visible)
-                   {
-                       LogForm.Log(text);
-                   }
-               })
-           );
-        }
-
-        private void ScanQueueItems()
-        {
-            if (SettingsForm.Settings.ShowLog)
-            {
-                ShowLog();
-            }
-
-            SetStatusBarProgressBarValue(0, QueueItems.Count);
-
-            var i = 0;
-            int totalNumFrames = 0;
-            int countedFrames = 0;
-
-            // Get all video durations and fps for a better progress bar
-            foreach (var item in QueueItems.Where(qi => !qi.Scanned))
-            {
-                item.Duration = FFMPEG.GetDuration(item.FileName, (s, e) =>
-                {
-                    string logMsg = e.Data;
-                    Log(logMsg);
-                    if (logMsg == null)
-                    {
-                        return;
-                    }
-
-                    if (item.Fps == 0)
-                    {
-                        string fpsPattern = @"(?'fps'[.\d]+) fps,";
-                        Regex regex = new Regex(fpsPattern, RegexOptions.Singleline);
-
-                        Match m = regex.Match(logMsg);
-                        if (m.Success && float.TryParse(m.Groups["fps"].Value, out float fps))
-                        {
-                            item.Fps = fps;
-                        }
-                    }
-                });
-
-                item.NumFrames = (int)Math.Ceiling(item.Duration.TotalSeconds * item.Fps);
-                totalNumFrames += item.NumFrames;
-            }
-
-            // Parse items
-            foreach (var item in QueueItems.Where(qi => !qi.Scanned))
-            {
-                i++;
-
-                SetStatusBarLabelValue($"Detecting frames for {Path.GetFileName(item.FileName)}");
-                item.Scanned = true;
-                item.LastScanned = DateTime.Now;
-                item.BlackFrames = FFMPEG.DetectBlackFrameIntervals(item.FileName, SettingsForm.Settings.BlackFrameDuration, SettingsForm.Settings.BlackFrameThreshold, SettingsForm.Settings.BlackFramePixelThreshold, (s, e) =>
-                {
-                    string logMsg = e.Data;
-                    Log(logMsg);
-                    if (logMsg == null)
-                    {
-                        return;
-                    }
-
-                    string framePattern = @"(\sframe:|frame=\s+)(?'frame'\d+)";
-                    Regex regex = new Regex(framePattern, RegexOptions.Singleline);
-
-                    Match m = regex.Match(logMsg);
-                    if (m.Success && int.TryParse(m.Groups["frame"].Value, out int frame))
-                    {
-                        SetStatusBarProgressBarValue(countedFrames + frame, totalNumFrames);
-                    }
-                });
-                countedFrames += item.NumFrames;
-                SetStatusBarProgressBarValue(countedFrames, totalNumFrames);
-
-                var frameNum = 1;
-                foreach (var frame in item.BlackFrames)
-                {
-                    long offset = (long)(SettingsForm.Settings.ReferenceFrameOffset * TimeSpan.TicksPerSecond);
-                    TimeSpan referenceFramePosition = frame.End.Add(new TimeSpan(offset));
-
-                    SetStatusBarLabelValue($"Generating frame {frameNum} of {item.BlackFrames.Count} at {referenceFramePosition}");
-                    frame.ReferenceFrame = new ReferenceFrame();
-                    frame.ReferenceFrame.Data = FFMPEG.ExtractFrame(item.FileName, referenceFramePosition, FFMPEGLog);
-                    frameNum++;
-                }
-
-                AddItemToQueue(item);
-            }
-
-            SetStatusBarLabelValue("Done!");
-            ClearStatusBarProgressBarValue();
-        }
-
-        private void FFMPEGLog(object sender, DataReceivedEventArgs e)
-        {
-            if (SettingsForm.Settings.ShowLog)
-            {
-                LogForm.Invoke(
-                                new MethodInvoker(
-                                delegate ()
-                                {
-                                    LogForm.Log(e.Data);
-                                }
-                            )
-                        );
-            }
-        }
-
-        private void SetStatusBarProgressBarValue(int value, int maximum)
-        {
-            StatusBar.Invoke(
-                new MethodInvoker(
-                    delegate ()
-                    {
-                        StatusBarProgressBar.Minimum = 0;
-                        StatusBarProgressBar.Maximum = maximum;
-
-                        if (value >= maximum)
-                            value = maximum - 1;
-
-                        StatusBarProgressBar.Value = value;
-                    }
-                )
-            );
-        }
-
-        private void ClearStatusBarProgressBarValue()
-        {
-            StatusBar.Invoke(
-                new MethodInvoker(
-                    delegate ()
-                    {
-                        StatusBarProgressBar.Minimum = 0;
-                        StatusBarProgressBar.Maximum = 1;
-
-                        StatusBarProgressBar.Value = 0;
-                    }
-                )
-            );
-        }
-
-        private void SetStatusBarLabelValue(string value)
-        {
-            StatusBar.Invoke(
-                new MethodInvoker(
-                    delegate ()
-                    {
-                        StatusBarLabel.Text = value;
-                    }
-                )
-            );
-        }
-
-        private void LockControls()
+        private void LockControls(bool enable)
         {
             Invoke(
                 new MethodInvoker(
                     delegate ()
                     {
-                        ProcessQueueButton.Enabled = false;
-                        QueueListContextMenuProcess.Enabled = false;
-                        QueueItemContextMenuProcess.Enabled = false;
-                        QueueListContextMenuRemove.Enabled = false;
-                        QueueItemContextMenuRemove.Enabled = false;
-                        AddFilesToQueueMenuItem.Enabled = false;
-                        AddFolderToQueueMenuItem.Enabled = false;
-                        Cursor.Current = Cursors.WaitCursor;
-                        Cursor = Cursors.WaitCursor;
-                        AllowDrop = false;
+                        ToggleControlsEnabled(enable);
                     }
                 )
             );
         }
 
-        private void UnlockControls()
+        private void ToggleControlsEnabled(bool enable)
         {
-            Invoke(
-                new MethodInvoker(
-                    delegate ()
-                    {
-                        ProcessQueueButton.Enabled = true;
-                        QueueListContextMenuProcess.Enabled = true;
-                        QueueItemContextMenuProcess.Enabled = true;
-                        QueueListContextMenuRemove.Enabled = true;
-                        QueueItemContextMenuRemove.Enabled = true;
-                        AddFilesToQueueMenuItem.Enabled = true;
-                        AddFolderToQueueMenuItem.Enabled = true;
-                        Cursor.Current = Cursors.Default;
-                        Cursor = Cursors.Default;
-                        AllowDrop = true;
-                    }
-                )
-            );
-        }
-
-        private void AddItemToQueue(QueueItem item)
-        {
-            QueueList.Invoke(
-                new MethodInvoker(
-                    delegate ()
-                    {
-                        QueueList.Items.Add(new ListViewItem()
-                        {
-                            Text = Path.GetFileName(item.FileName),
-                            ToolTipText = item.FileName,
-                            Name = item.Id.ToString(),
-                            Tag = item
-                        });
-                    }
-                )
-            );
+            foreach (var controlToLock in controlsToLock)
+            {
+                if (controlToLock is ToolStripMenuItem menuItem)
+                {
+                    menuItem.Enabled = enable;
+                    continue;
+                }
+                if (controlToLock is Control control)
+                {
+                    control.Enabled = enable;
+                }
+                AllowDrop = enable;
+            }
+            Cursor.Current = enable ? Cursors.Default : Cursors.WaitCursor;
+            Cursor = enable ? Cursors.Default : Cursors.WaitCursor;
         }
 
         private void RenderReferenceImagesListView(object sender, EventArgs e)
         {
-            if (QueueList.SelectedItems.Count > 0)
-            {
-                var selectedItem = (QueueItem)QueueList.SelectedItems[0].Tag;
-
-                foreach (var frame in selectedItem.BlackFrames)
-                {
-                    if (frame.ReferenceFrame.Data.Length > 0)
-                    {
-                        var bmp = Utilities.BytesToImage(frame.ReferenceFrame.Data);
-
-                        ReferenceImageList.Add(bmp, frame.Id.ToString());
-
-                        ReferenceImageListView.Items.Add(new ListViewItem()
-                        {
-                            ImageKey = frame.Id.ToString(),
-                            Tag = frame,
-                            Name = frame.Id.ToString(),
-                            Text = frame.End.ToString(),
-                            Checked = frame.Selected
-                        });
-                    }
-                }
-            }
-            else
+            if (QueueList.SelectedItems.Count <= 0)
             {
                 ReferenceImageListView.Clear();
+                return;
+            }
+
+            var selectedItem = (QueueItem)QueueList.SelectedItems[0].Tag;
+
+            foreach (var frame in selectedItem.BlackFrames)
+            {
+                if (frame.ReferenceFrame.Bitmap != null)
+                {
+                    var bmp = frame.ReferenceFrame.Bitmap;
+
+                    ReferenceImageList.Add(bmp, frame.Id.ToString());
+
+                    ReferenceImageListView.Items.Add(new ListViewItem()
+                    {
+                        ImageKey = frame.Id.ToString(),
+                        Tag = frame,
+                        Name = frame.Id.ToString(),
+                        Text = frame.End.ToString(),
+                        Checked = frame.Selected
+                    });
+                }
             }
         }
 
@@ -518,314 +147,25 @@ namespace BananaSplit
             }
         }
 
-        private void RemoveQueueItem(object sender, EventArgs e)
-        {
-            QueueItem queueItem = (QueueItem)QueueItemContextMenu.Tag;
-
-            QueueList.Items.RemoveByKey(queueItem.Id.ToString());
-            QueueItems.Remove(queueItem);
-        }
-
-        private void RemoveQueueList(object sender, EventArgs e)
-        {
-            foreach (var queueItem in QueueItems)
-            {
-                QueueList.Items.RemoveByKey(queueItem.Id.ToString());
-            }
-
-            QueueItems.Clear();
-        }
-
         private void ProcessQueue(object sender, EventArgs e)
         {
-            if (SettingsForm.Settings.ShowLog)
-            {
-                ShowLog();
-            }
-
-            ProcessingThread = new Thread(() =>
-            {
-                LockControls();
-
-                SetStatusBarProgressBarValue(0, QueueItems.Count);
-
-                var i = 0;
-
-                switch (SettingsForm.Settings.ProcessType)
-                {
-                    case ProcessingType.MatroskaChapters:
-                        foreach (var queueItem in QueueItems)
-                        {
-                            i++;
-
-                            SetStatusBarProgressBarValue(i, QueueItems.Count);
-                            SetStatusBarLabelValue($"Adding chapters for {Path.GetFileName(queueItem.FileName)}");
-
-                            ProcessMatroskaChapters(queueItem);
-                        }
-
-                        SetStatusBarLabelValue("Done adding chapters!");
-                        break;
-
-                    case ProcessingType.SplitAndEncode:
-                        foreach (var queueItem in QueueItems)
-                        {
-                            i++;
-
-                            SetStatusBarProgressBarValue(i, QueueItems.Count);
-                            SetStatusBarLabelValue($"Encoding for {Path.GetFileName(queueItem.FileName)}");
-
-                            ProcessSplitAndEncode(queueItem);
-                        }
-
-                        SetStatusBarLabelValue("Done encoding!");
-                        break;
-
-                    case ProcessingType.MKVToolNixSplit:
-                        foreach (var queueItem in QueueItems)
-                        {
-                            i++;
-
-                            SetStatusBarProgressBarValue(i, QueueItems.Count);
-                            SetStatusBarLabelValue($"MKV Splitting for {Path.GetFileName(queueItem.FileName)}");
-
-                            ProcessMKVSplit(queueItem);
-                        }
-
-                        SetStatusBarLabelValue("Done splitting!");
-                        break;
-                }
-
-                UnlockControls();
-
-                ClearStatusBarProgressBarValue();
-            });
-
-            ProcessingThread.Start();
+            processor.ProcessQueue(() => LockControls(false), () => LockControls(true), QueueItems);
         }
 
         private void ProcessQueueItem(object sender, EventArgs e)
         {
-            ProcessingThread = new Thread(() =>
-            {
-                QueueItem queueItem = (QueueItem)QueueItemContextMenu.Tag;
-
-                LockControls();
-
-                //SetStatusBarProgressBarValue(1, 1);
-
-                switch (SettingsForm.Settings.ProcessType)
-                {
-                    case ProcessingType.MatroskaChapters:
-                        SetStatusBarLabelValue($"Adding chapters for {Path.GetFileName(queueItem.FileName)}");
-                        ProcessMatroskaChapters(queueItem);
-                        SetStatusBarLabelValue("Done adding chapters!");
-                        break;
-
-                    case ProcessingType.SplitAndEncode:
-                        SetStatusBarLabelValue($"Encoding for {Path.GetFileName(queueItem.FileName)}");
-                        ProcessSplitAndEncode(queueItem);
-                        SetStatusBarLabelValue("Done encoding!");
-                        break;
-
-                    case ProcessingType.MKVToolNixSplit:
-                        SetStatusBarLabelValue($"Splitting for {Path.GetFileName(queueItem.FileName)}");
-                        ProcessMKVSplit(queueItem);
-                        SetStatusBarLabelValue("Done splitting!");
-                        break;
-                }
-
-                UnlockControls();
-
-                //ClearStatusBarProgressBarValue();
-            });
-
-            ProcessingThread.Start();
+            processor.ProcessQueueItem(() => LockControls(false), () => LockControls(true), (QueueItem)QueueItemContextMenu.Tag);
         }
-
-        private void ProcessMatroskaChapters(QueueItem queueItem)
-        {
-            List<TimeSpan> chapterTimeSpans = new List<TimeSpan>();
-
-            // Always add the beginning as a chapter
-            chapterTimeSpans.Add(new TimeSpan(0, 0, 0));
-
-            foreach (var frame in queueItem.BlackFrames.Where(bf => bf.Selected))
-            {
-                var halfDuration = new TimeSpan(frame.Duration.Ticks / 2);
-
-                chapterTimeSpans.Add(frame.End.Subtract(halfDuration));
-            }
-
-            if (!FFMPEG.IsMatroska(queueItem.FileName, FFMPEGLog))
-            {
-                var matroskaPath = MKVToolNix.RemuxToMatroska(queueItem.FileName);
-
-                queueItem.FileName = matroskaPath;
-            }
-
-            var chapters = MKVToolNix.GenerateChapters(chapterTimeSpans);
-
-            MKVToolNix.InjectChapters(queueItem.FileName, chapters);
-        }
-
-
-
-
-
-
-        private void ProcessMKVSplit(QueueItem queueItem)
-        {
-            var segments = queueItem.GetSegments();
-
-            var newName = Path.Combine(Path.GetDirectoryName(queueItem.FileName), "output", Path.GetFileNameWithoutExtension(queueItem.FileName) + "-%03d.mkv");
-
-            MKVToolNix.SplitSegments(queueItem.FileName, newName, SettingsForm.Settings.FFMPEGArguments.Replace("\r\n", " "), segments.ToList(), FFMPEGLog);
-
-        }
-
-
-
-
-
-
-
-
-        private void ProcessSplitAndEncode(QueueItem queueItem)
-        {
-            var segments = queueItem.GetSegments();
-            var index = 1;
-
-            // Rename original file if user wants it
-            var encodingFileName = queueItem.FileName;
-            if (SettingsForm.Settings.RenameOriginal)
-            {
-                var fi = new FileInfo(encodingFileName);
-                var path = Path.GetDirectoryName(encodingFileName);
-                var name = Path.GetFileNameWithoutExtension(encodingFileName);
-                var ext = Path.GetExtension(encodingFileName);
-                encodingFileName = Path.Combine(path, name + "_original" + ext);
-                try
-                {
-                    fi.MoveTo(encodingFileName);
-                }
-                catch
-                {
-                    MessageBox.Show("There was an error renaming the original file: " + encodingFileName + "/nMake sure it's not being used by another process!", "Error", MessageBoxButtons.OK);
-                    return;
-                }
-            }
-
-            foreach (var segment in segments)
-            {
-                //var newName = Path.Combine(Path.GetDirectoryName(queueItem.FileName), Path.GetFileNameWithoutExtension(queueItem.FileName) + "-" + index + ".mkv");
-                var newName = GetNewName(queueItem.FileName, index);
-
-                FFMPEG.EncodeSegments(encodingFileName, newName, SettingsForm.Settings.FFMPEGArguments.Replace("\r\n", " "), segment, FFMPEGLog);
-
-                index++;
-            }
-        }
-
-        private string GetNewName(string fileName, int index)
-        {
-            var path = Path.GetDirectoryName(fileName);
-            var name = Path.GetFileNameWithoutExtension(fileName);
-            var original = name;
-
-            var oldText = SettingsForm.Settings.RenameFindText;
-            var newText = SettingsForm.Settings.RenameNewText;
-
-            switch (SettingsForm.Settings.RenameType)
-            {
-                case RenameType.Prefix:
-                    name = newText + name;
-                    break;
-                case RenameType.Suffix:
-                    name += newText;
-                    break;
-                case RenameType.AppendAfter:
-                    var ind = name.IndexOf(oldText);
-                    name = name.Substring(0, ind + oldText.Length) + newText + name.Substring(ind + oldText.Length);
-                    break;
-                case RenameType.Replace:
-                    name = name.Replace(oldText, newText);
-                    break;
-                case RenameType.Increment:
-                    string numPattern = @"(S\d{2,}E)(?'num'\d{2,})(-E\d{2,})?";
-                    name = Regex.Replace(
-                        name,
-                        numPattern,
-                        m =>
-                        {
-                            if (SettingsForm.Settings.IncrementMultiplier == 0)
-                                return m.Groups[1].Value + (int.Parse(m.Groups["num"].Value) + index - 1).ToString("D2");
-
-                            return m.Groups[1].Value +
-                            (
-                                ((int.Parse(m.Groups["num"].Value) - 1) * SettingsForm.Settings.IncrementMultiplier +
-                                ((index - 1) % SettingsForm.Settings.IncrementMultiplier)) +
-                                1
-                            ).ToString("D2");
-                        }
-                    );
-                    break;
-            }
-
-            // Add the index if necessary
-            switch (SettingsForm.Settings.RenameType)
-            {
-                case RenameType.Prefix:
-                case RenameType.Suffix:
-                case RenameType.AppendAfter:
-                case RenameType.Replace:
-                case RenameType.Increment:
-                    if (name.Contains("{i}"))
-                    {
-                        if (SettingsForm.Settings.StartIndex == 0)
-                        {
-                            name.Replace("{i}", "" + index.ToString().PadLeft(SettingsForm.Settings.Padding, '0'));
-                        }
-                        else
-                        {
-                            name.Replace("{i}", "" + (SettingsForm.Settings.StartIndex + index - 1).ToString().PadLeft(SettingsForm.Settings.Padding, '0'));
-                        }
-
-                    }
-                    //else
-                    //{
-                    //    name += "-" + index;
-                    //}
-                    break;
-            }
-
-            // Make sure the name is different
-            if (name == original)
-            {
-                name += "-" + index;
-            }
-
-            var newName = Path.Combine(path, name + ".mkv");
-
-            // Rename again if there's already a file with that name
-            if (File.Exists(newName))
-            {
-                newName = Path.Combine(path, name + DateTimeOffset.Now.ToUnixTimeSeconds() + ".mkv");
-            }
-
-            return newName;
-        }
-
 
         private void QueueListKeyDownHandler(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Delete)
             {
-                foreach (ListViewItem eachItem in QueueList.SelectedItems)
+                foreach (ListViewItem selectedItem in QueueList.SelectedItems)
                 {
-                    QueueItem queueItem = eachItem.Tag as QueueItem;
+                    QueueItem queueItem = selectedItem.Tag as QueueItem;
 
-                    QueueList.Items.Remove(eachItem);
+                    QueueList.Items.Remove(selectedItem);
                     QueueItems.Remove(queueItem);
                 }
             }

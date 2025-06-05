@@ -9,108 +9,105 @@ using System.Threading;
 
 namespace BananaSplit
 {
-    public class FFMPEG
+    public partial class Ffmpeg
     {
-        private Process Process { get; set; }
+        private const string FfMpeg = "ffmpeg.exe";
+        private const string FfProbe = "ffprobe.exe";
 
-        public FFMPEG()
+        private Process FfProcess { get; set; }
+
+        public Ffmpeg()
         {
-            Process = new Process();
+            FfProcess = new Process();
 
-            Process.StartInfo.UseShellExecute = false;
-            Process.StartInfo.RedirectStandardError = true;
-            Process.StartInfo.FileName = "ffmpeg.exe";
-            Process.StartInfo.CreateNoWindow = true;
+            FfProcess.StartInfo.UseShellExecute = false;
+            FfProcess.StartInfo.RedirectStandardError = true;
+            FfProcess.StartInfo.FileName = FfMpeg;
+            FfProcess.StartInfo.CreateNoWindow = true;
         }
 
         public bool IsMatroska(string filePath, DataReceivedEventHandler outputHandler)
         {
-            Process.StartInfo.FileName = "ffprobe.exe";
-            Process.StartInfo.Arguments = $"\"{filePath}\"";
+            FfProcess.StartInfo.FileName = FfProbe;
+            FfProcess.StartInfo.Arguments = $"\"{filePath}\"";
 
             var output = "";
-            DataReceivedEventHandler handler = (s, evt) =>
+
+            void errorDataHandler(object s, DataReceivedEventArgs evt)
             {
                 output += evt.Data + "\n"; outputHandler(s, evt);
-            };
-            Process.ErrorDataReceived += handler;
+            }
 
-            Process.Start();
-            Process.BeginErrorReadLine();
+            FfProcess.ErrorDataReceived += errorDataHandler;
 
-            Process.WaitForExit();
-            Process.ErrorDataReceived -= handler;
-            Process.CancelErrorRead();
+            FfProcess.Start();
+            FfProcess.BeginErrorReadLine();
 
-            string pattern = @"^Input #\d+, matroska";
+            FfProcess.WaitForExit();
+            FfProcess.ErrorDataReceived -= errorDataHandler;
+            FfProcess.CancelErrorRead();
 
-            Regex regex = new Regex(pattern, RegexOptions.Multiline);
-
-            return regex.IsMatch(output);
+            return IsMatroskaRegex().IsMatch(output);
         }
 
         public TimeSpan GetDuration(string filePath, DataReceivedEventHandler outputHandler)
         {
-            TimeSpan duration = new TimeSpan();
+            TimeSpan duration = TimeSpan.FromSeconds(0);
 
-            Process.StartInfo.FileName = "ffprobe.exe";
-            Process.StartInfo.Arguments = $"\"{filePath}\"";
-            Process.StartInfo.RedirectStandardOutput = false;
-            Process.StartInfo.RedirectStandardError = true;
+            FfProcess.StartInfo.FileName = FfProbe;
+            FfProcess.StartInfo.Arguments = $"\"{filePath}\"";
+            FfProcess.StartInfo.RedirectStandardOutput = false;
+            FfProcess.StartInfo.RedirectStandardError = true;
 
             var output = "";
-            DataReceivedEventHandler handler = (s, evt) =>
+            void errorDataHandler(object s, DataReceivedEventArgs evt)
             {
                 output += evt.Data + "\n"; outputHandler(s, evt);
-            };
-            Process.ErrorDataReceived += handler;
+            }
+            FfProcess.ErrorDataReceived += errorDataHandler;
 
-            Process.Start();
-            Process.BeginErrorReadLine();
+            FfProcess.Start();
+            FfProcess.BeginErrorReadLine();
 
-            Process.WaitForExit();
-            Process.ErrorDataReceived -= handler;
-            Process.CancelErrorRead();
+            FfProcess.WaitForExit();
+            FfProcess.ErrorDataReceived -= errorDataHandler;
+            FfProcess.CancelErrorRead();
 
             string pattern = @"^\s+Duration: (?<duration>\d+(?:.\d+)*)";
 
-            Regex regex = new Regex(pattern, RegexOptions.Multiline);
-
-            if (regex.IsMatch(output))
+            var match = Regex.Match(output, pattern, RegexOptions.Multiline);
+            if (match.Success)
             {
-                var durationString = regex.Match(output).Groups["duration"].Value;
-                TimeSpan.TryParse(durationString, out duration);
+                var durationString = match.Groups["duration"].Value;
+                TimeSpan.TryParse(durationString, new CultureInfo("en-US"), out duration);
             }
-
             return duration;
         }
 
         public byte[] ExtractFrame(string filePath, TimeSpan time, DataReceivedEventHandler outputHandler)
         {
-            var timespan = String.Format("{0:D2}:{1:D2}:{2:D2}.{3}", time.Hours, time.Minutes, time.Seconds, time.Milliseconds);
+            var timespan = $"{time.Hours:D2}:{time.Minutes:D2}:{time.Seconds:D2}.{time.Milliseconds}";
 
-            Process.StartInfo.FileName = "ffmpeg.exe";
-            Process.StartInfo.Arguments = $"-ss {timespan} -i \"{filePath}\" -vframes 1 -c:v png -f image2pipe -";
-            Process.StartInfo.RedirectStandardOutput = true;
-            Process.StartInfo.RedirectStandardError = true;
+            FfProcess.StartInfo.FileName = FfMpeg;
+            FfProcess.StartInfo.Arguments = $"-ss {timespan} -i \"{filePath}\" -vframes 1 -c:v png -f image2pipe -";
+            FfProcess.StartInfo.RedirectStandardOutput = true;
+            FfProcess.StartInfo.RedirectStandardError = true;
 
             // ffmpeg uses stderr for some reason
-            DataReceivedEventHandler handler = (s, evt) => outputHandler(s, evt);
-            Process.ErrorDataReceived += handler;
+            void errorDataHandler(object s, DataReceivedEventArgs evt) => outputHandler(s, evt);
+            FfProcess.ErrorDataReceived += errorDataHandler;
 
-            Process.Start();
-            Process.BeginErrorReadLine();
+            FfProcess.Start();
+            FfProcess.BeginErrorReadLine();
 
-            using (MemoryStream ms = new MemoryStream())
-            {
-                Process.StandardOutput.BaseStream.CopyTo(ms);
+            using MemoryStream ms = new MemoryStream();
+            FfProcess.StandardOutput.BaseStream.CopyTo(ms);
 
-                Process.WaitForExit();
-                Process.CancelErrorRead();
-                Process.ErrorDataReceived -= handler;
+            FfProcess.WaitForExit();
+            FfProcess.CancelErrorRead();
+            FfProcess.ErrorDataReceived -= errorDataHandler;
 
-                return ms.ToArray();
-            }
+            return ms.ToArray();
         }
 
 
@@ -118,140 +115,105 @@ namespace BananaSplit
         {
             arguments = arguments.Replace("{source}", source);
             arguments = arguments.Replace("{destination}", destination);
-            arguments = arguments.Replace("{start}", String.Format("{0:D2}:{1:D2}:{2:D2}.{3}", segment.Start.Hours, segment.Start.Minutes, segment.Start.Seconds, segment.Start.Milliseconds));
-            arguments = arguments.Replace("{end}", String.Format("{0:D2}:{1:D2}:{2:D2}.{3}", segment.End.Hours, segment.End.Minutes, segment.End.Seconds, segment.End.Milliseconds));
-            arguments = arguments.Replace("{duration}", String.Format("{0:D2}:{1:D2}:{2:D2}.{3}", segment.Duration.Hours, segment.Duration.Minutes, segment.Duration.Seconds, segment.Duration.Milliseconds));
+            arguments = arguments.Replace("{start}", segment.Start.ToString("c"));
+            arguments = arguments.Replace("{end}", segment.End.ToString("c"));
+            arguments = arguments.Replace("{duration}", segment.Duration.ToString("c"));
 
-            Process.StartInfo.FileName = "ffmpeg.exe";
-            Process.StartInfo.Arguments = arguments;
-            Process.StartInfo.RedirectStandardOutput = false;
-            Process.StartInfo.RedirectStandardError = true;
+            FfProcess.StartInfo.FileName = FfMpeg;
+            FfProcess.StartInfo.Arguments = arguments;
+            FfProcess.StartInfo.RedirectStandardOutput = false;
+            FfProcess.StartInfo.RedirectStandardError = true;
 
             // ffmpeg uses stderr for some reason
-            DataReceivedEventHandler handler = (s, evt) => outputHandler(s, evt);
-            Process.ErrorDataReceived += handler;
-            Process.Start();
-            Process.BeginErrorReadLine();
+            void errorDataHandler(object s, DataReceivedEventArgs evt) => outputHandler(s, evt);
+            FfProcess.ErrorDataReceived += errorDataHandler;
+            FfProcess.Start();
+            FfProcess.BeginErrorReadLine();
 
-            Process.WaitForExit();
-            Process.ErrorDataReceived -= handler;
-            Process.CancelErrorRead();
+            FfProcess.WaitForExit();
+            FfProcess.ErrorDataReceived -= errorDataHandler;
+            FfProcess.CancelErrorRead();
         }
 
         public ICollection<BlackFrame> DetectBlackFrameIntervals(string filePath, double blackFrameDuration, double blackFrameThreshold, double blackFramePixelThreshold, DataReceivedEventHandler outputHandler)
         {
-            var frames = new List<BlackFrame>();
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-US");
-            Process.StartInfo.FileName = "ffmpeg.exe";
-            Process.StartInfo.RedirectStandardError = true;
-            Process.StartInfo.Arguments = $"-i \"{filePath}\" -vf blackdetect=d={blackFrameDuration}:pic_th={blackFrameThreshold}:pix_th={blackFramePixelThreshold} -an -f null -y /NUL";
-
-            // ffmpeg uses stderr for some reason
-            var output = "";
-            DataReceivedEventHandler handler = (s, evt) =>
-            {
-                output += evt.Data + "\n"; outputHandler(s, evt);
-            };
-            Process.ErrorDataReceived += handler;
-
-            Process.Start();
-            Process.BeginErrorReadLine();
-
-            Process.WaitForExit();
-            Process.ErrorDataReceived -= handler;
-            Process.CancelErrorRead();
+            var arguments = $"-i \"{filePath}\" -vf blackdetect=d={blackFrameDuration}:pic_th={blackFrameThreshold}:pix_th={blackFramePixelThreshold} -an -f null -y /NUL";
+            var output = RunBlackFrameDetection(arguments, outputHandler);
 
             string pattern = @"(?:blackdetect.+)(?:black_start:)(?<start>\d+(?:.\d+)*) (?:black_end:)(?<end>\d+(?:.\d+)*) (?:black_duration:)(?<duration>\d+(?:.\d+)*)";
-
             Regex regex = new Regex(pattern, RegexOptions.Multiline);
-
             var matches = regex.Matches(output);
 
-            foreach (Match match in matches)
+            var frames = new List<BlackFrame>();
+            foreach (var groups in matches.Select(match => match.Groups))
             {
-                try
-                {
-                    var frame = new BlackFrame();
-                    decimal start;
-                    decimal end;
-                    decimal duration;
+                BlackFrame frame = ParseBlackFrame(groups);
 
-                    Decimal.TryParse(match.Groups["start"].Value, out start);
-                    Decimal.TryParse(match.Groups["end"].Value, out end);
-                    Decimal.TryParse(match.Groups["duration"].Value, out duration);
+                if (frame == null)
+                    continue;
 
-                    frame.Start = TimeSpan.FromSeconds((double)start);
-                    frame.End = TimeSpan.FromSeconds((double)end);
-                    frame.Duration = TimeSpan.FromSeconds((double)duration);
-                    frame.Marker = frame.GetMiddle();
-
-                    frames.Add(frame);
-                }
-                catch { }
+                frames.Add(frame);
             }
 
             return frames;
         }
 
-        public ICollection<BlackFrame> DetectBlackFrames(string filePath, DataReceivedEventHandler outputHandler)
+        private static BlackFrame ParseBlackFrame(GroupCollection groups)
         {
-            var frames = new List<BlackFrame>();
+            try
+            {
+                if (double.TryParse(groups["start"].Value, out var start) &&
+                    double.TryParse(groups["end"].Value, out var end) &&
+                    double.TryParse(groups["duration"].Value, out var duration))
+                {
+                    return new BlackFrame()
+                    {
+                        Start = TimeSpan.FromSeconds(start),
+                        End = TimeSpan.FromSeconds(end),
+                        Duration = TimeSpan.FromSeconds(duration),
+                        Marker = GetMiddle(TimeSpan.FromSeconds(duration), TimeSpan.FromSeconds(end)),
+                    };
+                }
+            }
+            catch
+            {
+                return null;
+            }
+            return null;
+        }
 
-            Process.StartInfo.FileName = "ffmpeg.exe";
-            Process.StartInfo.RedirectStandardError = true;
-            Process.StartInfo.Arguments = $"-i \"{filePath}\" -vf blackframe -f null -y /NUL";
+        private static TimeSpan GetMiddle(TimeSpan Duration, TimeSpan End)
+        {
+            var halfDuration = new TimeSpan(Duration.Ticks / 2);
+
+            return End.Subtract(halfDuration);
+        }
+
+        private string RunBlackFrameDetection(string arguments, DataReceivedEventHandler outputHandler)
+        {
+            FfProcess.StartInfo.FileName = FfMpeg;
+            FfProcess.StartInfo.RedirectStandardError = true;
+            FfProcess.StartInfo.Arguments = arguments;
 
             // ffmpeg uses stderr for some reason
             var output = "";
-            DataReceivedEventHandler handler = (s, evt) =>
+            void errorDataHandler(object s, DataReceivedEventArgs evt)
             {
                 output += evt.Data + "\n"; outputHandler(s, evt);
-            };
-            Process.ErrorDataReceived += handler;
-
-            Process.Start();
-            Process.BeginErrorReadLine();
-
-            Process.WaitForExit();
-            Process.ErrorDataReceived -= handler;
-            Process.CancelErrorRead();
-
-            string pattern = @"t:(?'time'\d+(?:\.\d+)*) type:\w last_keyframe:(?'group'\d+)";
-
-            Regex regex = new Regex(pattern, RegexOptions.Multiline);
-
-            var matches = regex.Matches(output);
-            var blackFrames = new List<TimeSpan>();
-
-            var matchGroups = matches.GroupBy(m => m.Groups["group"].Value);
-
-
-
-            foreach (var group in matchGroups)
-            {
-                foreach (var match in group)
-                {
-                    decimal time;
-
-                    if (Decimal.TryParse(match.Groups["time"].Value, out time))
-                    {
-                        blackFrames.Add(TimeSpan.FromSeconds((double)time));
-                    }
-                }
-
-                var frame = new BlackFrame();
-
-                frame.Start = blackFrames.First();
-                frame.End = blackFrames.Last();
-                frame.Duration = blackFrames.Last().Subtract(blackFrames.First());
-                frame.Marker = frame.GetMiddle();
-
-                frames.Add(frame);
-
-                blackFrames = new List<TimeSpan>();
             }
+            FfProcess.ErrorDataReceived += errorDataHandler;
 
-            return frames;
+            FfProcess.Start();
+            FfProcess.BeginErrorReadLine();
+
+            FfProcess.WaitForExit();
+            FfProcess.ErrorDataReceived -= errorDataHandler;
+            FfProcess.CancelErrorRead();
+            return output;
         }
+
+        [GeneratedRegex(@"^Input #\d+, matroska", RegexOptions.Multiline)]
+        private static partial Regex IsMatroskaRegex();
     }
 }

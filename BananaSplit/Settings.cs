@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using AutoMapper;
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 
@@ -11,7 +12,7 @@ namespace BananaSplit
         [Display(Name = "Split and Encode")]
         SplitAndEncode,
         [Display(Name = "MKVToolNix Split")]
-        MKVToolNixSplit
+        MkvToolNixSplit
     }
 
     public enum RenameType
@@ -29,83 +30,38 @@ namespace BananaSplit
     }
 
 
-    public class Settings
+    public class Settings(IMapper mapper)
     {
-        public double BlackFrameDuration { get; set; }
-        public double BlackFrameThreshold { get; set; }
-        public double BlackFramePixelThreshold { get; set; }
-        public string FFMPEGArguments { get; set; }
-        public ProcessingType ProcessType { get; set; }
-        public bool ShowLog { get; set; }
-        public bool DeleteOriginal { get; set; }
-        public double ReferenceFrameOffset { get; set; }
-        public string RenameFindText { get; set; }
-        public string RenameNewText { get; set; }
-        public RenameType RenameType { get; set; }
-        public bool RenameOriginal { get; set; }
-        public int IncrementMultiplier { get; set; }
-        public int StartIndex { get; set; }
-        public int Padding { get; set; }
 
-        public Settings()
-        {
-            BlackFrameDuration = 0.04;
-            BlackFrameThreshold = 0.98;
-            BlackFramePixelThreshold = 0.15;
-            FFMPEGArguments = "-i \"{source}\" -ss {start} -t {duration} -c:v libx264 -crf 18 -preset slow -c:a copy -map 0 \"{destination}\"";
-            ProcessType = ProcessingType.MKVToolNixSplit;
-            ShowLog = false;
-            DeleteOriginal = false;
-            ReferenceFrameOffset = 1;
-            RenameFindText = "";
-            RenameNewText = "{i}";
-            RenameType = RenameType.Increment;
-            RenameOriginal = true;
-            IncrementMultiplier = 2;
-            StartIndex = 1;
-            Padding = 2;
-        }
+        public double BlackFrameDuration { get; set; } = 0.04;
+        public double BlackFrameThreshold { get; set; } = 0.98;
+        public double BlackFramePixelThreshold { get; set; } = 0.15;
+        public string FmpegArguments { get; set; } = "-i \"{source}\" -ss {start} -t {duration} -c:v libx264 -crf 18 -preset slow -c:a copy -map 0 \"{destination}\"";
+        public ProcessingType ProcessType { get; set; } = ProcessingType.MkvToolNixSplit;
+        public bool ShowLog { get; set; } = false;
+        public bool DeleteOriginal { get; set; } = false;
+        public double ReferenceFrameOffset { get; set; } = 1;
+        public string RenameFindText { get; set; } = "";
+        public string RenameNewText { get; set; } = "{i}";
+        public RenameType RenameType { get; set; } = RenameType.Increment;
+        public bool RenameOriginal { get; set; } = true;
+        public int IncrementMultiplier { get; set; } = 2;
+        public int StartIndex { get; set; } = 1;
+        public int Padding { get; set; } = 2;
 
         public void Load()
         {
-            Settings settings;
-
-            if (File.Exists("Settings.json"))
+            try
             {
                 var json = File.ReadAllText("Settings.json");
-
-                try
-                {
-                    settings = JsonConvert.DeserializeObject<Settings>(json);
-                }
-                catch
-                {
-                    settings = new Settings();
-                    settings.Save();
-                }
+                mapper.Map(JsonConvert.DeserializeObject<Settings>(json), this);
             }
-            else
+            catch
             {
-                settings = new Settings();
-                settings.Save();
+                Save();
             }
-
-            BlackFrameDuration = settings.BlackFrameDuration;
-            BlackFrameThreshold = settings.BlackFrameThreshold;
-            BlackFramePixelThreshold = settings.BlackFramePixelThreshold;
-            FFMPEGArguments = settings.FFMPEGArguments;
-            ProcessType = settings.ProcessType;
-            ShowLog = settings.ShowLog;
-            DeleteOriginal = settings.DeleteOriginal;
-            ReferenceFrameOffset = settings.ReferenceFrameOffset;
-            RenameFindText = settings.RenameFindText;
-            RenameNewText = settings.RenameNewText;
-            RenameType = settings.RenameType;
-            RenameOriginal = settings.RenameOriginal;
-            IncrementMultiplier = settings.IncrementMultiplier;
-            StartIndex = settings.StartIndex;
-            Padding = settings.Padding;
         }
+
 
         public void Save()
         {

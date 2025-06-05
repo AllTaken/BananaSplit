@@ -15,66 +15,59 @@ namespace BananaSplit
         private const string SampleExtensionText = ".mkv";
         private const string SampleIncrementText = "S02E0";
 
-        public SettingsForm()
+        public SettingsForm(Settings settings)
         {
-
             InitializeComponent();
-            Settings = new Settings();
+
+            PopulateCombos();
+
+            AddEventHandlers();
+
+            Settings = settings;
             Settings.Load();
 
-            // Default values / settings
-            BlackFrameDurationInput.Increment = (decimal)0.01;
-            BlackFrameThresholdInput.Increment = (decimal)0.01;
-            BlackFramePixelThresholdInput.Increment = (decimal)0.01;
-            ReferenceFrameOffsetInput.Increment = (decimal)0.1;
+            ApplySettings();
 
-            BlackFrameDurationInput.DecimalPlaces = 2;
-            BlackFrameThresholdInput.DecimalPlaces = 2;
-            BlackFramePixelThresholdInput.DecimalPlaces = 2;
-            ReferenceFrameOffsetInput.DecimalPlaces = 1;
+            UpdateExample();
+        }
 
-            Settings.RenameFindText = FindTextBox.Text;
-            Settings.RenameNewText = NewTextTextBox.Text;
-
-            ProcessTypeComboBox.Items.Clear();
-            ProcessTypeComboBox.Items.AddRange(typeof(ProcessingType).GetDisplayNames().ToArray());
-
-            RenameTypeComboBox.Items.Clear();
-            RenameTypeComboBox.Items.AddRange(typeof(RenameType).GetDisplayNames().ToArray());
-
-            RenameOriginalCheckBox.Checked = true;
-
-            MultiplierInput.Value = 2;
-            StartIndexInput.Value = 1;
-            PaddingInput.Value = 2;
-
-            // Restore load values
+        private void ApplySettings()
+        {
             BlackFrameDurationInput.Value = (decimal)Settings.BlackFrameDuration;
             BlackFrameThresholdInput.Value = (decimal)Settings.BlackFrameThreshold;
             BlackFramePixelThresholdInput.Value = (decimal)Settings.BlackFramePixelThreshold;
             ReferenceFrameOffsetInput.Value = (decimal)Settings.ReferenceFrameOffset;
             ShowLogCheckbox.Checked = Settings.ShowLog;
             DeleteOriginalCheckbox.Checked = Settings.DeleteOriginal;
-            FFMPEGArgumentsInput.Text = Settings.FFMPEGArguments;
+            FFMPEGArgumentsInput.Text = Settings.FmpegArguments;
             ProcessTypeComboBox.SelectedItem = Settings.ProcessType.GetDisplayName();
             FindTextBox.Text = Settings.RenameFindText;
             NewTextTextBox.Text = Settings.RenameNewText;
-            // Make sure the event handler is set before we set the value of the combo to update the fields
-            RenameTypeComboBox.SelectedIndexChanged += RenameTypeComboBox_SelectedIndexChanged;
             RenameTypeComboBox.SelectedItem = Settings.RenameType.GetDisplayName();
             RenameOriginalCheckBox.Checked = Settings.RenameOriginal;
             MultiplierInput.Value = Settings.IncrementMultiplier;
             StartIndexInput.Value = Settings.StartIndex;
             PaddingInput.Value = Settings.Padding;
+        }
 
-            UpdateExample();
+        private void AddEventHandlers()
+        {
+            RenameTypeComboBox.SelectedIndexChanged += RenameTypeComboBox_SelectedIndexChanged;
 
-            // Event handlers
             SaveButton.Click += SaveButton_Click;
             FormClosing += SettingsForm_FormClosing;
 
             FindTextBox.TextChanged += FindTextBox_TextChanged;
             NewTextTextBox.TextChanged += NewTextTextBox_TextChanged;
+        }
+
+        private void PopulateCombos()
+        {
+            ProcessTypeComboBox.Items.Clear();
+            ProcessTypeComboBox.Items.AddRange(typeof(ProcessingType).GetDisplayNames().ToArray());
+
+            RenameTypeComboBox.Items.Clear();
+            RenameTypeComboBox.Items.AddRange(typeof(RenameType).GetDisplayNames().ToArray());
         }
 
         private void SaveButton_Click(object sender, System.EventArgs e)
@@ -85,7 +78,7 @@ namespace BananaSplit
             Settings.ReferenceFrameOffset = (double)ReferenceFrameOffsetInput.Value;
             Settings.ShowLog = ShowLogCheckbox.Checked;
             Settings.DeleteOriginal = DeleteOriginalCheckbox.Checked;
-            Settings.FFMPEGArguments = FFMPEGArgumentsInput.Text;
+            Settings.FmpegArguments = FFMPEGArgumentsInput.Text;
             Settings.RenameFindText = FindTextBox.Text;
             Settings.RenameNewText = NewTextTextBox.Text;
             Settings.RenameOriginal = RenameOriginalCheckBox.Checked;
@@ -113,15 +106,18 @@ namespace BananaSplit
             Hide();
         }
 
-        public void PopulateInputs()
-        {
-            BlackFrameDurationInput.Text = Settings.BlackFrameDuration.ToString();
-        }
 
         private void SettingsForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.Hide();
             e.Cancel = true;
+        }
+
+        private void ToggleRenameType(bool enableFindText, bool enableNewText, string text)
+        {
+            FindTextBox.Enabled = enableFindText;
+            NewTextTextBox.Enabled = enableNewText;
+            RenameLabel.Text = text;
         }
 
         private void RenameTypeComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -130,73 +126,22 @@ namespace BananaSplit
             switch (type)
             {
                 case RenameType.Prefix:
-                    FindTextBox.Enabled = false;
-                    NewTextTextBox.Enabled = true;
-                    RenameLabel.Text = "Prefix";
+                    ToggleRenameType(false, true, "Prefix");
                     break;
                 case RenameType.Suffix:
-                    FindTextBox.Enabled = false;
-                    NewTextTextBox.Enabled = true;
-                    RenameLabel.Text = "Suffix";
+                    ToggleRenameType(false, true, "Suffix");
                     break;
                 case RenameType.AppendAfter:
-                    FindTextBox.Enabled = true;
-                    NewTextTextBox.Enabled = true;
-                    RenameLabel.Text = "Append After";
+                    ToggleRenameType(true, true, "Append After");
                     break;
                 case RenameType.Replace:
-                    FindTextBox.Enabled = true;
-                    NewTextTextBox.Enabled = true;
-                    RenameLabel.Text = "Replace";
+                    ToggleRenameType(true, true, "Replace");
                     break;
                 case RenameType.Increment:
-                    FindTextBox.Enabled = false;
-                    NewTextTextBox.Enabled = false;
+                    ToggleRenameType(false, false, "Increment");
                     break;
             }
 
-            UpdateExample();
-        }
-
-        private void PrefixRadioButton_CheckedChanged(object sender, EventArgs e)
-        {
-            FindTextBox.Enabled = false;
-            MultiplierInput.Enabled = false;
-            RenameLabel.Text = "Suffix";
-            UpdateExample();
-        }
-
-        private void SuffixRadioButton_CheckedChanged(object sender, EventArgs e)
-        {
-            FindTextBox.Enabled = false;
-            MultiplierInput.Enabled = false;
-            RenameLabel.Text = "Prefix";
-            UpdateExample();
-        }
-
-        private void AppendAfterRadioButton_CheckedChanged(object sender, EventArgs e)
-        {
-            FindTextBox.Enabled = true;
-            NewTextTextBox.Enabled = true;
-            MultiplierInput.Enabled = false;
-            RenameLabel.Text = "Append After";
-            UpdateExample();
-        }
-
-        private void ReplaceRadioButton_CheckedChanged(object sender, EventArgs e)
-        {
-            FindTextBox.Enabled = true;
-            NewTextTextBox.Enabled = true;
-            MultiplierInput.Enabled = false;
-            RenameLabel.Text = "Replace";
-            UpdateExample();
-        }
-
-        private void IncrementRadioButton_CheckedChanged(object sender, EventArgs e)
-        {
-            FindTextBox.Enabled = false;
-            NewTextTextBox.Enabled = false;
-            MultiplierInput.Enabled = true;
             UpdateExample();
         }
 
@@ -212,8 +157,7 @@ namespace BananaSplit
 
         private RenameType GetRenameType()
         {
-            Enum.TryParse((RenameTypeComboBox.SelectedItem as string).Replace(" ", ""), out RenameType type);
-            return type;
+            return Enum.Parse<RenameType>((RenameTypeComboBox.SelectedItem as string).Replace(" ", ""));
         }
 
         private void UpdateExample()

@@ -4,63 +4,30 @@ using System.Linq;
 
 namespace BananaSplit
 {
-    public class QueueItem
+    public class QueueItem(string fileName)
     {
-        public Guid Id { get; set; }
-        public string FileName { get; set; }
-        public bool Scanned { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string FileName { get; set; } = fileName;
+        public bool Scanned { get; set; } = false;
         public DateTime LastScanned { get; set; }
-        public ICollection<BlackFrame> BlackFrames { get; set; }
+        public ICollection<BlackFrame> BlackFrames { get; set; } = [];
         public TimeSpan Duration { get; set; }
-        public float Fps { get; set; }
-        public int NumFrames { get; set; }
+        public float? Fps { get; set; } = null;
+        public int NumFrames { get; set; } = 0;
 
-        public QueueItem(string fileName)
+        public List<Segment> GetSegments()
         {
-            Id = Guid.NewGuid();
-            FileName = fileName;
-            Scanned = false;
-            BlackFrames = new List<BlackFrame>();
-            Fps = 0;
-            NumFrames = 0;
-        }
+            List<Segment> segments = [];
 
-        public ICollection<Segment> GetSegments()
-        {
-            var segments = new List<Segment>();
             var selectedFrames = BlackFrames.Where(bf => bf.Selected).ToList();
 
             if (selectedFrames.Count > 0)
             {
-                // The first segment starts at the beginning of the video and ends at the start of the first black frame
-                var start = new Segment()
-                {
-                    Start = new TimeSpan(0, 0, 0),
-                    End = selectedFrames.First().Marker
-                };
+                Segment start = GetStartSegment(selectedFrames);
 
-                // The last segment starts at the end of the last black frame to the end of the video
-                var end = new Segment()
-                {
-                    Start = selectedFrames.Last().Marker,
-                    End = Duration
-                };
+                Segment end = GetEndingSegment(selectedFrames);
 
-                var additionalSegments = new List<Segment>();
-
-                int index = 0;
-
-                // Loop through to get any additional segments.
-                while (additionalSegments.Count < selectedFrames.Count - 1)
-                {
-                    additionalSegments.Add(new Segment()
-                    {
-                        Start = selectedFrames[index].Marker,
-                        End = selectedFrames[index + 1].Marker
-                    });
-
-                    index++;
-                }
+                List<Segment> additionalSegments = GetAdditionalSegments(selectedFrames);
 
                 segments.Add(start);
                 segments.AddRange(additionalSegments);
@@ -68,6 +35,43 @@ namespace BananaSplit
             }
 
             return segments;
+        }
+
+        private static List<Segment> GetAdditionalSegments(List<BlackFrame> selectedFrames)
+        {
+            var additionalSegments = new List<Segment>();
+
+            // Loop through to get any additional segments.
+            for (var i = 0; i < selectedFrames.Count - 1; i++)
+            {
+                additionalSegments.Add(new Segment()
+                {
+                    Start = selectedFrames[i].Marker,
+                    End = selectedFrames[i + 1].Marker
+                });
+            }
+
+            return additionalSegments;
+        }
+
+        private Segment GetEndingSegment(List<BlackFrame> selectedFrames)
+        {
+            // The last segment starts at the end of the last black frame to the end of the video
+            return new Segment()
+            {
+                Start = selectedFrames[^1].Marker,
+                End = Duration
+            };
+        }
+
+        private static Segment GetStartSegment(List<BlackFrame> selectedFrames)
+        {
+            // The first segment starts at the beginning of the video and ends at the start of the first black frame
+            return new Segment()
+            {
+                Start = new TimeSpan(0, 0, 0),
+                End = selectedFrames[0].Marker
+            };
         }
     }
 }

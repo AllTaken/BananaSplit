@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
+            var resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
             tabControl1 = new System.Windows.Forms.TabControl();
             tabPage1 = new System.Windows.Forms.TabPage();
             BlackFramePixelThresholdInput = new System.Windows.Forms.NumericUpDown();
@@ -88,11 +88,11 @@
             tabControl1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             tabControl1.Controls.Add(tabPage1);
             tabControl1.Controls.Add(tabPage2);
-            tabControl1.Location = new System.Drawing.Point(26, 30);
-            tabControl1.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+            tabControl1.Location = new System.Drawing.Point(13, 15);
+            tabControl1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new System.Drawing.Size(912, 953);
+            tabControl1.Size = new System.Drawing.Size(456, 476);
             tabControl1.TabIndex = 0;
             // 
             // tabPage1
@@ -110,22 +110,22 @@
             tabPage1.Controls.Add(BlackFrameThresholdLabel);
             tabPage1.Controls.Add(BlackFrameDurationLabel);
             tabPage1.Controls.Add(FFMPEGArgumentsGroupBox);
-            tabPage1.Location = new System.Drawing.Point(8, 46);
-            tabPage1.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+            tabPage1.Location = new System.Drawing.Point(4, 24);
+            tabPage1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            tabPage1.Size = new System.Drawing.Size(896, 899);
+            tabPage1.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            tabPage1.Size = new System.Drawing.Size(448, 448);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "General";
             tabPage1.UseVisualStyleBackColor = true;
             // 
             // BlackFramePixelThresholdInput
             // 
-            BlackFramePixelThresholdInput.DecimalPlaces = 1;
-            BlackFramePixelThresholdInput.Location = new System.Drawing.Point(13, 117);
-            BlackFramePixelThresholdInput.Margin = new System.Windows.Forms.Padding(6);
+            BlackFramePixelThresholdInput.DecimalPlaces = 2;
+            BlackFramePixelThresholdInput.Increment = new decimal(new int[] { 1, 0, 0, 131072 });
+            BlackFramePixelThresholdInput.Location = new System.Drawing.Point(6, 58);
             BlackFramePixelThresholdInput.Name = "BlackFramePixelThresholdInput";
-            BlackFramePixelThresholdInput.Size = new System.Drawing.Size(260, 39);
+            BlackFramePixelThresholdInput.Size = new System.Drawing.Size(130, 23);
             BlackFramePixelThresholdInput.TabIndex = 12;
             BlackFramePixelThresholdInput.Tag = "BlackFramePixelThreshold";
             BlackFramePixelThresholdInput.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
@@ -133,19 +133,20 @@
             // bplabel1
             // 
             bplabel1.AutoSize = true;
-            bplabel1.Location = new System.Drawing.Point(290, 119);
-            bplabel1.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+            bplabel1.Location = new System.Drawing.Point(145, 60);
+            bplabel1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             bplabel1.Name = "bplabel1";
-            bplabel1.Size = new System.Drawing.Size(238, 32);
+            bplabel1.Size = new System.Drawing.Size(118, 15);
             bplabel1.TabIndex = 11;
             bplabel1.Text = "Black Pixel Threshold";
             // 
             // ShowLogCheckbox
             // 
             ShowLogCheckbox.AutoSize = true;
-            ShowLogCheckbox.Location = new System.Drawing.Point(13, 268);
+            ShowLogCheckbox.Location = new System.Drawing.Point(6, 134);
+            ShowLogCheckbox.Margin = new System.Windows.Forms.Padding(2);
             ShowLogCheckbox.Name = "ShowLogCheckbox";
-            ShowLogCheckbox.Size = new System.Drawing.Size(150, 36);
+            ShowLogCheckbox.Size = new System.Drawing.Size(78, 19);
             ShowLogCheckbox.TabIndex = 7;
             ShowLogCheckbox.Text = "Show Log";
             ShowLogCheckbox.UseVisualStyleBackColor = true;
@@ -153,20 +154,20 @@
             // ReferenceFrameOffsetLabel
             // 
             ReferenceFrameOffsetLabel.AutoSize = true;
-            ReferenceFrameOffsetLabel.Location = new System.Drawing.Point(290, 170);
-            ReferenceFrameOffsetLabel.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+            ReferenceFrameOffsetLabel.Location = new System.Drawing.Point(145, 85);
+            ReferenceFrameOffsetLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             ReferenceFrameOffsetLabel.Name = "ReferenceFrameOffsetLabel";
-            ReferenceFrameOffsetLabel.Size = new System.Drawing.Size(296, 32);
+            ReferenceFrameOffsetLabel.Size = new System.Drawing.Size(146, 15);
             ReferenceFrameOffsetLabel.TabIndex = 3;
             ReferenceFrameOffsetLabel.Text = "Reference Frame Offset (s)";
             // 
             // ReferenceFrameOffsetInput
             // 
             ReferenceFrameOffsetInput.DecimalPlaces = 1;
-            ReferenceFrameOffsetInput.Location = new System.Drawing.Point(13, 168);
-            ReferenceFrameOffsetInput.Margin = new System.Windows.Forms.Padding(6);
+            ReferenceFrameOffsetInput.Increment = new decimal(new int[] { 1, 0, 0, 65536 });
+            ReferenceFrameOffsetInput.Location = new System.Drawing.Point(6, 84);
             ReferenceFrameOffsetInput.Name = "ReferenceFrameOffsetInput";
-            ReferenceFrameOffsetInput.Size = new System.Drawing.Size(260, 39);
+            ReferenceFrameOffsetInput.Size = new System.Drawing.Size(130, 23);
             ReferenceFrameOffsetInput.TabIndex = 5;
             ReferenceFrameOffsetInput.Tag = "Settings.BlackFrameDuration";
             ReferenceFrameOffsetInput.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
@@ -174,10 +175,9 @@
             // DeleteOriginalCheckbox
             // 
             DeleteOriginalCheckbox.AutoSize = true;
-            DeleteOriginalCheckbox.Location = new System.Drawing.Point(13, 313);
-            DeleteOriginalCheckbox.Margin = new System.Windows.Forms.Padding(6);
+            DeleteOriginalCheckbox.Location = new System.Drawing.Point(6, 156);
             DeleteOriginalCheckbox.Name = "DeleteOriginalCheckbox";
-            DeleteOriginalCheckbox.Size = new System.Drawing.Size(308, 36);
+            DeleteOriginalCheckbox.Size = new System.Drawing.Size(155, 19);
             DeleteOriginalCheckbox.TabIndex = 8;
             DeleteOriginalCheckbox.Text = "Delete/Replace Originals";
             DeleteOriginalCheckbox.UseVisualStyleBackColor = true;
@@ -185,41 +185,40 @@
             // ProcessTypeLabel
             // 
             ProcessTypeLabel.AutoSize = true;
-            ProcessTypeLabel.Location = new System.Drawing.Point(290, 222);
-            ProcessTypeLabel.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+            ProcessTypeLabel.Location = new System.Drawing.Point(145, 111);
+            ProcessTypeLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             ProcessTypeLabel.Name = "ProcessTypeLabel";
-            ProcessTypeLabel.Size = new System.Drawing.Size(219, 32);
+            ProcessTypeLabel.Size = new System.Drawing.Size(109, 15);
             ProcessTypeLabel.TabIndex = 3;
             ProcessTypeLabel.Text = "Processing Method";
             // 
             // ProcessTypeComboBox
             // 
             ProcessTypeComboBox.FormattingEnabled = true;
-            ProcessTypeComboBox.Location = new System.Drawing.Point(13, 219);
-            ProcessTypeComboBox.Margin = new System.Windows.Forms.Padding(6);
+            ProcessTypeComboBox.Location = new System.Drawing.Point(6, 110);
             ProcessTypeComboBox.Name = "ProcessTypeComboBox";
-            ProcessTypeComboBox.Size = new System.Drawing.Size(260, 40);
+            ProcessTypeComboBox.Size = new System.Drawing.Size(132, 23);
             ProcessTypeComboBox.TabIndex = 6;
             ProcessTypeComboBox.Tag = "Settings.ProcessType";
             // 
             // BlackFrameDurationInput
             // 
-            BlackFrameDurationInput.DecimalPlaces = 1;
-            BlackFrameDurationInput.Location = new System.Drawing.Point(13, 15);
-            BlackFrameDurationInput.Margin = new System.Windows.Forms.Padding(6);
+            BlackFrameDurationInput.DecimalPlaces = 2;
+            BlackFrameDurationInput.Increment = new decimal(new int[] { 1, 0, 0, 131072 });
+            BlackFrameDurationInput.Location = new System.Drawing.Point(6, 8);
             BlackFrameDurationInput.Name = "BlackFrameDurationInput";
-            BlackFrameDurationInput.Size = new System.Drawing.Size(260, 39);
+            BlackFrameDurationInput.Size = new System.Drawing.Size(130, 23);
             BlackFrameDurationInput.TabIndex = 5;
             BlackFrameDurationInput.Tag = "Settings.BlackFrameDuration";
             BlackFrameDurationInput.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // BlackFrameThresholdInput
             // 
-            BlackFrameThresholdInput.DecimalPlaces = 1;
-            BlackFrameThresholdInput.Location = new System.Drawing.Point(13, 66);
-            BlackFrameThresholdInput.Margin = new System.Windows.Forms.Padding(6);
+            BlackFrameThresholdInput.DecimalPlaces = 2;
+            BlackFrameThresholdInput.Increment = new decimal(new int[] { 1, 0, 0, 131072 });
+            BlackFrameThresholdInput.Location = new System.Drawing.Point(6, 33);
             BlackFrameThresholdInput.Name = "BlackFrameThresholdInput";
-            BlackFrameThresholdInput.Size = new System.Drawing.Size(260, 39);
+            BlackFrameThresholdInput.Size = new System.Drawing.Size(130, 23);
             BlackFrameThresholdInput.TabIndex = 4;
             BlackFrameThresholdInput.Tag = "BlackFrameThreshold";
             BlackFrameThresholdInput.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
@@ -227,20 +226,20 @@
             // BlackFrameThresholdLabel
             // 
             BlackFrameThresholdLabel.AutoSize = true;
-            BlackFrameThresholdLabel.Location = new System.Drawing.Point(290, 68);
-            BlackFrameThresholdLabel.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+            BlackFrameThresholdLabel.Location = new System.Drawing.Point(145, 34);
+            BlackFrameThresholdLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             BlackFrameThresholdLabel.Name = "BlackFrameThresholdLabel";
-            BlackFrameThresholdLabel.Size = new System.Drawing.Size(255, 32);
+            BlackFrameThresholdLabel.Size = new System.Drawing.Size(126, 15);
             BlackFrameThresholdLabel.TabIndex = 3;
             BlackFrameThresholdLabel.Text = "Black Frame Threshold";
             // 
             // BlackFrameDurationLabel
             // 
             BlackFrameDurationLabel.AutoSize = true;
-            BlackFrameDurationLabel.Location = new System.Drawing.Point(290, 17);
-            BlackFrameDurationLabel.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+            BlackFrameDurationLabel.Location = new System.Drawing.Point(145, 8);
+            BlackFrameDurationLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             BlackFrameDurationLabel.Name = "BlackFrameDurationLabel";
-            BlackFrameDurationLabel.Size = new System.Drawing.Size(273, 32);
+            BlackFrameDurationLabel.Size = new System.Drawing.Size(136, 15);
             BlackFrameDurationLabel.TabIndex = 1;
             BlackFrameDurationLabel.Text = "Black Frame Duration (s)";
             // 
@@ -249,11 +248,9 @@
             FFMPEGArgumentsGroupBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             FFMPEGArgumentsGroupBox.Controls.Add(FFMPEGArgumentsInput);
             FFMPEGArgumentsGroupBox.Controls.Add(FFMPEGArgumentsLegend);
-            FFMPEGArgumentsGroupBox.Location = new System.Drawing.Point(13, 361);
-            FFMPEGArgumentsGroupBox.Margin = new System.Windows.Forms.Padding(6);
+            FFMPEGArgumentsGroupBox.Location = new System.Drawing.Point(6, 180);
             FFMPEGArgumentsGroupBox.Name = "FFMPEGArgumentsGroupBox";
-            FFMPEGArgumentsGroupBox.Padding = new System.Windows.Forms.Padding(6);
-            FFMPEGArgumentsGroupBox.Size = new System.Drawing.Size(862, 526);
+            FFMPEGArgumentsGroupBox.Size = new System.Drawing.Size(431, 263);
             FFMPEGArgumentsGroupBox.TabIndex = 10;
             FFMPEGArgumentsGroupBox.TabStop = false;
             FFMPEGArgumentsGroupBox.Text = "FFMPEG Arguments";
@@ -261,21 +258,19 @@
             // FFMPEGArgumentsInput
             // 
             FFMPEGArgumentsInput.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            FFMPEGArgumentsInput.Location = new System.Drawing.Point(12, 44);
-            FFMPEGArgumentsInput.Margin = new System.Windows.Forms.Padding(6);
+            FFMPEGArgumentsInput.Location = new System.Drawing.Point(6, 22);
             FFMPEGArgumentsInput.Multiline = true;
             FFMPEGArgumentsInput.Name = "FFMPEGArgumentsInput";
-            FFMPEGArgumentsInput.Size = new System.Drawing.Size(664, 470);
+            FFMPEGArgumentsInput.Size = new System.Drawing.Size(334, 237);
             FFMPEGArgumentsInput.TabIndex = 9;
             // 
             // FFMPEGArgumentsLegend
             // 
             FFMPEGArgumentsLegend.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
             FFMPEGArgumentsLegend.AutoSize = true;
-            FFMPEGArgumentsLegend.Location = new System.Drawing.Point(688, 47);
-            FFMPEGArgumentsLegend.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            FFMPEGArgumentsLegend.Location = new System.Drawing.Point(344, 24);
             FFMPEGArgumentsLegend.Name = "FFMPEGArgumentsLegend";
-            FFMPEGArgumentsLegend.Size = new System.Drawing.Size(147, 192);
+            FFMPEGArgumentsLegend.Size = new System.Drawing.Size(74, 90);
             FFMPEGArgumentsLegend.TabIndex = 11;
             FFMPEGArgumentsLegend.Text = "Legend:\r\n{source}\r\n{destination}\r\n{start}\r\n{end}\r\n{duration}";
             // 
@@ -296,76 +291,83 @@
             tabPage2.Controls.Add(FindTextBox);
             tabPage2.Controls.Add(panel1);
             tabPage2.Controls.Add(NewTextTextBox);
-            tabPage2.Location = new System.Drawing.Point(8, 46);
+            tabPage2.Location = new System.Drawing.Point(4, 24);
+            tabPage2.Margin = new System.Windows.Forms.Padding(2);
             tabPage2.Name = "tabPage2";
-            tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            tabPage2.Size = new System.Drawing.Size(896, 899);
+            tabPage2.Padding = new System.Windows.Forms.Padding(2);
+            tabPage2.Size = new System.Drawing.Size(448, 448);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Rename";
             tabPage2.UseVisualStyleBackColor = true;
             // 
             // MultiplierInput
             // 
-            MultiplierInput.Location = new System.Drawing.Point(285, 249);
+            MultiplierInput.Location = new System.Drawing.Point(142, 124);
+            MultiplierInput.Margin = new System.Windows.Forms.Padding(2);
             MultiplierInput.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
-            MultiplierInput.Minimum = new decimal(new int[] { 0, 0, 0, 0 });
             MultiplierInput.Name = "MultiplierInput";
-            MultiplierInput.Size = new System.Drawing.Size(131, 39);
+            MultiplierInput.Size = new System.Drawing.Size(66, 23);
             MultiplierInput.TabIndex = 25;
             MultiplierInput.Value = new decimal(new int[] { 2, 0, 0, 0 });
             // 
             // label8
             // 
             label8.AutoSize = true;
-            label8.Location = new System.Drawing.Point(18, 251);
+            label8.Location = new System.Drawing.Point(9, 126);
+            label8.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             label8.Name = "label8";
-            label8.Size = new System.Drawing.Size(232, 32);
+            label8.Size = new System.Drawing.Size(115, 15);
             label8.TabIndex = 24;
             label8.Text = "Increment Multiplier";
             // 
             // PaddingInput
             // 
-            PaddingInput.Location = new System.Drawing.Point(286, 366);
+            PaddingInput.Location = new System.Drawing.Point(143, 183);
+            PaddingInput.Margin = new System.Windows.Forms.Padding(2);
             PaddingInput.Maximum = new decimal(new int[] { 10, 0, 0, 0 });
             PaddingInput.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             PaddingInput.Name = "PaddingInput";
-            PaddingInput.Size = new System.Drawing.Size(131, 39);
+            PaddingInput.Size = new System.Drawing.Size(66, 23);
             PaddingInput.TabIndex = 23;
             PaddingInput.Value = new decimal(new int[] { 2, 0, 0, 0 });
             // 
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new System.Drawing.Point(19, 368);
+            label7.Location = new System.Drawing.Point(10, 184);
+            label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             label7.Name = "label7";
-            label7.Size = new System.Drawing.Size(100, 32);
+            label7.Size = new System.Drawing.Size(51, 15);
             label7.TabIndex = 22;
             label7.Text = "Padding";
             // 
             // StartIndexInput
             // 
-            StartIndexInput.Location = new System.Drawing.Point(286, 307);
+            StartIndexInput.Location = new System.Drawing.Point(143, 154);
+            StartIndexInput.Margin = new System.Windows.Forms.Padding(2);
             StartIndexInput.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             StartIndexInput.Name = "StartIndexInput";
-            StartIndexInput.Size = new System.Drawing.Size(131, 39);
+            StartIndexInput.Size = new System.Drawing.Size(66, 23);
             StartIndexInput.TabIndex = 21;
             StartIndexInput.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new System.Drawing.Point(19, 309);
+            label6.Location = new System.Drawing.Point(10, 154);
+            label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             label6.Name = "label6";
-            label6.Size = new System.Drawing.Size(127, 32);
+            label6.Size = new System.Drawing.Size(63, 15);
             label6.TabIndex = 20;
             label6.Text = "Start Index";
             // 
             // RenameOriginalCheckBox
             // 
-            RenameOriginalCheckBox.Location = new System.Drawing.Point(19, 203);
+            RenameOriginalCheckBox.Location = new System.Drawing.Point(10, 102);
+            RenameOriginalCheckBox.Margin = new System.Windows.Forms.Padding(2);
             RenameOriginalCheckBox.Name = "RenameOriginalCheckBox";
             RenameOriginalCheckBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            RenameOriginalCheckBox.Size = new System.Drawing.Size(294, 36);
+            RenameOriginalCheckBox.Size = new System.Drawing.Size(147, 18);
             RenameOriginalCheckBox.TabIndex = 19;
             RenameOriginalCheckBox.Text = "Rename Original";
             RenameOriginalCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -374,35 +376,39 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new System.Drawing.Point(18, 154);
+            label1.Location = new System.Drawing.Point(9, 77);
+            label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             label1.Name = "label1";
-            label1.Size = new System.Drawing.Size(65, 32);
+            label1.Size = new System.Drawing.Size(31, 15);
             label1.TabIndex = 17;
             label1.Text = "Type";
             // 
             // RenameTypeComboBox
             // 
             RenameTypeComboBox.FormattingEnabled = true;
-            RenameTypeComboBox.Location = new System.Drawing.Point(286, 151);
+            RenameTypeComboBox.Location = new System.Drawing.Point(143, 76);
+            RenameTypeComboBox.Margin = new System.Windows.Forms.Padding(2);
             RenameTypeComboBox.Name = "RenameTypeComboBox";
-            RenameTypeComboBox.Size = new System.Drawing.Size(178, 40);
+            RenameTypeComboBox.Size = new System.Drawing.Size(91, 23);
             RenameTypeComboBox.TabIndex = 16;
             // 
             // RenameLabel
             // 
             RenameLabel.AutoSize = true;
-            RenameLabel.Location = new System.Drawing.Point(18, 90);
+            RenameLabel.Location = new System.Drawing.Point(9, 45);
+            RenameLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             RenameLabel.Name = "RenameLabel";
-            RenameLabel.Size = new System.Drawing.Size(96, 32);
+            RenameLabel.Size = new System.Drawing.Size(48, 15);
             RenameLabel.TabIndex = 15;
             RenameLabel.Text = "Replace";
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new System.Drawing.Point(18, 24);
+            label4.Location = new System.Drawing.Point(9, 12);
+            label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             label4.Name = "label4";
-            label4.Size = new System.Drawing.Size(60, 32);
+            label4.Size = new System.Drawing.Size(30, 15);
             label4.TabIndex = 14;
             label4.Text = "Find";
             // 
@@ -411,28 +417,31 @@
             panel2.BackColor = System.Drawing.SystemColors.Control;
             panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             panel2.Controls.Add(textBox1);
-            panel2.Location = new System.Drawing.Point(18, 428);
+            panel2.Location = new System.Drawing.Point(9, 214);
+            panel2.Margin = new System.Windows.Forms.Padding(2);
             panel2.Name = "panel2";
-            panel2.Size = new System.Drawing.Size(850, 283);
+            panel2.Size = new System.Drawing.Size(426, 142);
             panel2.TabIndex = 13;
             // 
             // textBox1
             // 
             textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             textBox1.Location = new System.Drawing.Point(0, 0);
+            textBox1.Margin = new System.Windows.Forms.Padding(2);
             textBox1.Multiline = true;
             textBox1.Name = "textBox1";
             textBox1.ReadOnly = true;
             textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            textBox1.Size = new System.Drawing.Size(848, 281);
+            textBox1.Size = new System.Drawing.Size(424, 140);
             textBox1.TabIndex = 26;
             textBox1.Text = resources.GetString("textBox1.Text");
             // 
             // FindTextBox
             // 
-            FindTextBox.Location = new System.Drawing.Point(286, 21);
+            FindTextBox.Location = new System.Drawing.Point(143, 10);
+            FindTextBox.Margin = new System.Windows.Forms.Padding(2);
             FindTextBox.Name = "FindTextBox";
-            FindTextBox.Size = new System.Drawing.Size(581, 39);
+            FindTextBox.Size = new System.Drawing.Size(292, 23);
             FindTextBox.TabIndex = 1;
             // 
             // panel1
@@ -442,61 +451,66 @@
             panel1.Controls.Add(label3);
             panel1.Controls.Add(label2);
             panel1.Controls.Add(OriginalLabel);
-            panel1.Location = new System.Drawing.Point(18, 752);
+            panel1.Location = new System.Drawing.Point(9, 376);
+            panel1.Margin = new System.Windows.Forms.Padding(2);
             panel1.Name = "panel1";
-            panel1.Size = new System.Drawing.Size(850, 137);
+            panel1.Size = new System.Drawing.Size(426, 70);
             panel1.TabIndex = 11;
             // 
             // ResultLabel
             // 
             ResultLabel.AutoSize = true;
-            ResultLabel.Location = new System.Drawing.Point(167, 88);
+            ResultLabel.Location = new System.Drawing.Point(84, 44);
+            ResultLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             ResultLabel.Name = "ResultLabel";
-            ResultLabel.Size = new System.Drawing.Size(250, 32);
+            ResultLabel.Size = new System.Drawing.Size(126, 15);
             ResultLabel.TabIndex = 3;
             ResultLabel.Text = "ExampleFilename.mkv";
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new System.Drawing.Point(25, 88);
+            label3.Location = new System.Drawing.Point(12, 44);
+            label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             label3.Name = "label3";
-            label3.Size = new System.Drawing.Size(71, 32);
+            label3.Size = new System.Drawing.Size(36, 15);
             label3.TabIndex = 2;
             label3.Text = "After:";
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new System.Drawing.Point(25, 21);
+            label2.Location = new System.Drawing.Point(12, 10);
+            label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             label2.Name = "label2";
-            label2.Size = new System.Drawing.Size(89, 32);
+            label2.Size = new System.Drawing.Size(44, 15);
             label2.TabIndex = 1;
             label2.Text = "Before:";
             // 
             // OriginalLabel
             // 
             OriginalLabel.AutoSize = true;
-            OriginalLabel.Location = new System.Drawing.Point(167, 21);
+            OriginalLabel.Location = new System.Drawing.Point(84, 10);
+            OriginalLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             OriginalLabel.Name = "OriginalLabel";
-            OriginalLabel.Size = new System.Drawing.Size(253, 32);
+            OriginalLabel.Size = new System.Drawing.Size(127, 15);
             OriginalLabel.TabIndex = 0;
             OriginalLabel.Text = "ExampleFilename.mp4";
             // 
             // NewTextTextBox
             // 
-            NewTextTextBox.Location = new System.Drawing.Point(286, 87);
+            NewTextTextBox.Location = new System.Drawing.Point(143, 44);
+            NewTextTextBox.Margin = new System.Windows.Forms.Padding(2);
             NewTextTextBox.Name = "NewTextTextBox";
-            NewTextTextBox.Size = new System.Drawing.Size(581, 39);
+            NewTextTextBox.Size = new System.Drawing.Size(292, 23);
             NewTextTextBox.TabIndex = 2;
             // 
             // SaveButton
             // 
             SaveButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-            SaveButton.Location = new System.Drawing.Point(790, 980);
-            SaveButton.Margin = new System.Windows.Forms.Padding(6);
+            SaveButton.Location = new System.Drawing.Point(395, 490);
             SaveButton.Name = "SaveButton";
-            SaveButton.Size = new System.Drawing.Size(139, 49);
+            SaveButton.Size = new System.Drawing.Size(70, 24);
             SaveButton.TabIndex = 10;
             SaveButton.Text = "Save";
             SaveButton.UseVisualStyleBackColor = true;
@@ -504,13 +518,13 @@
             // SettingsForm
             // 
             AcceptButton = SaveButton;
-            AutoScaleDimensions = new System.Drawing.SizeF(192F, 192F);
+            AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            ClientSize = new System.Drawing.Size(944, 1044);
+            ClientSize = new System.Drawing.Size(472, 522);
             Controls.Add(SaveButton);
             Controls.Add(tabControl1);
-            Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+            Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             Name = "SettingsForm";
             ShowIcon = false;
             SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;

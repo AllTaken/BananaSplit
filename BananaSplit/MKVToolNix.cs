@@ -2,22 +2,23 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace BananaSplit
 {
-    public class MKVToolNix
+    public class MkvToolNix
     {
-        private Process process { get; set; }
+        private Process MkvProcess { get; set; }
 
-        public MKVToolNix()
+        public MkvToolNix()
         {
-            process = new Process();
+            MkvProcess = new Process();
 
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.CreateNoWindow = true;
+            MkvProcess.StartInfo.UseShellExecute = false;
+            MkvProcess.StartInfo.RedirectStandardError = true;
+            MkvProcess.StartInfo.RedirectStandardOutput = true;
+            MkvProcess.StartInfo.CreateNoWindow = true;
         }
 
         public string RemuxToMatroska(string filepath)
@@ -26,84 +27,82 @@ namespace BananaSplit
             var path = Path.GetDirectoryName(filepath);
             var extensionlessPath = Path.Combine(path, basename);
 
-            process.StartInfo.FileName = "mkvmerge.exe";
-            process.StartInfo.Arguments = $"-o \"{extensionlessPath}.mkv\" \"{filepath}\"";
+            MkvProcess.StartInfo.FileName = "mkvmerge.exe";
+            MkvProcess.StartInfo.Arguments = $"-o \"{extensionlessPath}.mkv\" \"{filepath}\"";
 
-            process.Start();
-            process.WaitForExit();
+            MkvProcess.Start();
+            MkvProcess.WaitForExit();
 
             return extensionlessPath + ".mkv";
         }
 
         public void InjectChapters(string filepath, Chapters chapters)
         {
-            var temporaryXmlFile = Path.GetTempFileName();
-            var temporaryOutputFile = Path.GetTempFileName();
-
-            process.StartInfo.FileName = "mkvmerge.exe";
-            process.StartInfo.Arguments = $"--chapters \"{temporaryXmlFile}\" -o \"{temporaryOutputFile}\" \"{filepath}\"";
+            var temporaryXmlFile = Path.GetRandomFileName();
+            var temporaryOutputFile = Path.GetRandomFileName();
 
             XmlSerializer serializer = new XmlSerializer(typeof(Chapters));
             XmlSerializerNamespaces namespaces = new XmlSerializerNamespaces();
             namespaces.Add("", "");
 
-            TextWriter writer = new StreamWriter(temporaryXmlFile);
+            using (StreamWriter writer = new(temporaryXmlFile))
+            {
+                serializer.Serialize(writer, chapters, namespaces);
+                writer.Close();
+            }
 
-            serializer.Serialize(writer, chapters, namespaces);
+            MkvProcess.StartInfo.FileName = "mkvmerge.exe";
+            MkvProcess.StartInfo.Arguments = $"--chapters \"{temporaryXmlFile}\" -o \"{temporaryOutputFile}\" \"{filepath}\"";
+            MkvProcess.Start();
 
-            writer.Close();
-
-            process.Start();
-
-            var error = process.StandardError.ReadToEnd();
-            var output = process.StandardOutput.ReadToEnd();
-
-            process.WaitForExit();
+            MkvProcess.WaitForExit();
 
             File.Delete(filepath);
             File.Move(temporaryOutputFile, filepath);
             File.Delete(temporaryXmlFile);
         }
 
-        public Chapters GenerateChapters(IEnumerable<TimeSpan> segments)
+        public static Chapters GenerateChapters(IEnumerable<TimeSpan> segments)
         {
-            var chapters = new Chapters();
-            var editionEntry = new EditionEntry()
+            Chapters chapters = new()
             {
-                EditionFlagHidden = 0,
-                EditionFlagDefault = 0,
-                EditionUID = 1,
-                ChapterAtom = new List<ChapterAtom>()
+                EditionEntry = new()
+                {
+                    EditionFlagHidden = 0,
+                    EditionFlagDefault = 0,
+                    EditionUID = 1,
+                    ChapterAtom = []
+                }
             };
 
             int i = 1;
-
             foreach (var segment in segments)
             {
-                var chapterAtom = new ChapterAtom();
-                var timestamp = String.Format("{0:D2}:{1:D2}:{2:D2}.{3}", segment.Hours, segment.Minutes, segment.Seconds, segment.Milliseconds);
-
-                chapterAtom.ChapterUID = i;
-                chapterAtom.ChapterFlagHidden = 0;
-                chapterAtom.ChapterFlagEnabled = 1;
-                chapterAtom.ChapterTimeStart = timestamp;
-                chapterAtom.ChapterDisplay = new ChapterDisplay()
-                {
-                    ChapterLanguage = "eng",
-                    ChapterString = timestamp
-                };
-
-                editionEntry.ChapterAtom.Add(chapterAtom);
-
-                i++;
+                chapters.EditionEntry.ChapterAtom.Add(GenerateChapter(segment, i++));
             }
 
-            chapters.EditionEntry = editionEntry;
             return chapters;
         }
 
+        private static ChapterAtom GenerateChapter(TimeSpan segment, int index)
+        {
+            var chapterAtom = new ChapterAtom();
+            var timestamp = $"{segment.Hours:D2}:{segment.Minutes:D2}:{segment.Seconds:D2}.{segment.Milliseconds}";
 
-        public void SplitSegments(string source, string destination, string arguments, List<Segment> segments, DataReceivedEventHandler outputHandler)
+            chapterAtom.ChapterUID = index;
+            chapterAtom.ChapterFlagHidden = 0;
+            chapterAtom.ChapterFlagEnabled = 1;
+            chapterAtom.ChapterTimeStart = timestamp;
+            chapterAtom.ChapterDisplay = new ChapterDisplay()
+            {
+                ChapterLanguage = "eng",
+                ChapterString = timestamp
+            };
+
+            return chapterAtom;
+        }
+
+        public void SplitSegments(string source, string destination, List<Segment> segments, DataReceivedEventHandler outputHandler)
         {
             if (segments.Count <= 1)
             {
@@ -114,38 +113,20 @@ namespace BananaSplit
             // make sure the segments are in order
             segments.Sort((a, b) => a.End.CompareTo(b.End));
 
-            segments.RemoveAt(segments.Count - 1); // last segment's end would be the end of the file
+            // last segment's end would be the end of the file
+            segments.RemoveAt(segments.Count - 1); 
 
-            string cuts = "";
+            var cuts = string.Join(",", segments.Select(segment => $"{segment.End.Hours:D2}:{segment.End.Minutes:D2}:{segment.End.Seconds:D2}.{segment.End.Milliseconds}"));
 
-            bool first = true;
+            MkvProcess.StartInfo.FileName = "mkvmerge.exe";
+            MkvProcess.StartInfo.Arguments = $"-o \"{destination}\" --split timecodes:{cuts} \"{source}\"";
+            MkvProcess.StartInfo.RedirectStandardOutput = false;
+            MkvProcess.StartInfo.RedirectStandardError = true;
 
-            foreach (var segment in segments)
-            {
-                if (!first)
-                {
-                    cuts += ",";
-                }
-                first = false;
+            MkvProcess.ErrorDataReceived += (s, evt) => outputHandler(s, evt);
+            MkvProcess.Start();
 
-                cuts += String.Format("{0:D2}:{1:D2}:{2:D2}.{3}", segment.End.Hours, segment.End.Minutes, segment.End.Seconds, segment.End.Milliseconds);
-
-            }
-
-            process.StartInfo.FileName = "mkvmerge.exe";
-            process.StartInfo.Arguments = $"-o \"{destination}\" --split timecodes:{cuts} \"{source}\"";
-            process.StartInfo.RedirectStandardOutput = false;
-            process.StartInfo.RedirectStandardError = true;
-
-
-            DataReceivedEventHandler handler = (s, evt) => outputHandler(s, evt);
-            process.ErrorDataReceived += handler;
-            process.Start();
-
-            //var error = process.StandardError.ReadToEnd();
-            //var output = process.StandardOutput.ReadToEnd();
-
-            process.WaitForExit();
+            MkvProcess.WaitForExit();
         }
 
 

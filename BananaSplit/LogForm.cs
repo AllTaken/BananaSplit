@@ -5,6 +5,7 @@ namespace BananaSplit
 {
     public partial class LogForm : Form
     {
+        public MainForm MainForm { get; set; }
         public LogForm()
         {
             InitializeComponent();
@@ -27,6 +28,18 @@ namespace BananaSplit
         public void Log(string text)
         {
             LogRichTextBox.AppendText(text + Environment.NewLine);
+        }
+
+        public void ShowLog()
+        {
+            MainForm?.Invoke(new MethodInvoker(
+               delegate ()
+               {
+                   if (!Visible)
+                   {
+                       Show();
+                   }
+               }));
         }
     }
 }

@@ -18,12 +18,5 @@ namespace BananaSplit
         {
             Id = Guid.NewGuid();
         }
-
-        public TimeSpan GetMiddle()
-        {
-            var halfDuration = new TimeSpan(Duration.Ticks / 2);
-
-            return End.Subtract(halfDuration);
-        }
     }
 }

@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            var resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             Menu = new System.Windows.Forms.MenuStrip();
             FileMenuDropdown = new System.Windows.Forms.ToolStripMenuItem();
             AddFilesToQueueMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -73,8 +74,8 @@
             Menu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { FileMenuDropdown, OptionsMenuDropdown });
             Menu.Location = new System.Drawing.Point(0, 0);
             Menu.Name = "Menu";
-            Menu.Padding = new System.Windows.Forms.Padding(13, 4, 0, 4);
-            Menu.Size = new System.Drawing.Size(1733, 44);
+            Menu.Padding = new System.Windows.Forms.Padding(7, 2, 0, 2);
+            Menu.Size = new System.Drawing.Size(933, 24);
             Menu.TabIndex = 0;
             Menu.Text = "menuStrip1";
             // 
@@ -82,46 +83,46 @@
             // 
             FileMenuDropdown.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { AddFilesToQueueMenuItem, AddFolderToQueueMenuItem });
             FileMenuDropdown.Name = "FileMenuDropdown";
-            FileMenuDropdown.Size = new System.Drawing.Size(71, 36);
+            FileMenuDropdown.Size = new System.Drawing.Size(37, 20);
             FileMenuDropdown.Text = "File";
             // 
             // AddFilesToQueueMenuItem
             // 
             AddFilesToQueueMenuItem.Name = "AddFilesToQueueMenuItem";
-            AddFilesToQueueMenuItem.Size = new System.Drawing.Size(372, 44);
+            AddFilesToQueueMenuItem.Size = new System.Drawing.Size(184, 22);
             AddFilesToQueueMenuItem.Text = "Add File(s) to Queue";
             // 
             // AddFolderToQueueMenuItem
             // 
             AddFolderToQueueMenuItem.Name = "AddFolderToQueueMenuItem";
-            AddFolderToQueueMenuItem.Size = new System.Drawing.Size(372, 44);
+            AddFolderToQueueMenuItem.Size = new System.Drawing.Size(184, 22);
             AddFolderToQueueMenuItem.Text = "Add Folder to Queue";
             // 
             // OptionsMenuDropdown
             // 
             OptionsMenuDropdown.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { SettingsMenuItem, AboutMenuItem });
             OptionsMenuDropdown.Name = "OptionsMenuDropdown";
-            OptionsMenuDropdown.Size = new System.Drawing.Size(118, 36);
+            OptionsMenuDropdown.Size = new System.Drawing.Size(61, 20);
             OptionsMenuDropdown.Text = "Options";
             // 
             // SettingsMenuItem
             // 
             SettingsMenuItem.Name = "SettingsMenuItem";
-            SettingsMenuItem.Size = new System.Drawing.Size(359, 44);
+            SettingsMenuItem.Size = new System.Drawing.Size(116, 22);
             SettingsMenuItem.Text = "Settings";
             // 
             // AboutMenuItem
             // 
             AboutMenuItem.Name = "AboutMenuItem";
-            AboutMenuItem.Size = new System.Drawing.Size(359, 44);
+            AboutMenuItem.Size = new System.Drawing.Size(116, 22);
             AboutMenuItem.Text = "About";
             // 
             // FileBrowserSplitContainer
             // 
             FileBrowserSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             FileBrowserSplitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            FileBrowserSplitContainer.Location = new System.Drawing.Point(7, 6);
-            FileBrowserSplitContainer.Margin = new System.Windows.Forms.Padding(7, 6, 7, 124);
+            FileBrowserSplitContainer.Location = new System.Drawing.Point(4, 3);
+            FileBrowserSplitContainer.Margin = new System.Windows.Forms.Padding(4, 3, 4, 58);
             FileBrowserSplitContainer.Name = "FileBrowserSplitContainer";
             // 
             // FileBrowserSplitContainer.Panel1
@@ -131,21 +132,20 @@
             // FileBrowserSplitContainer.Panel2
             // 
             FileBrowserSplitContainer.Panel2.Controls.Add(ReferenceImageListView);
-            FileBrowserSplitContainer.Size = new System.Drawing.Size(1719, 724);
-            FileBrowserSplitContainer.SplitterDistance = 264;
-            FileBrowserSplitContainer.SplitterWidth = 9;
+            FileBrowserSplitContainer.Size = new System.Drawing.Size(925, 335);
+            FileBrowserSplitContainer.SplitterDistance = 767;
+            FileBrowserSplitContainer.SplitterWidth = 5;
             FileBrowserSplitContainer.TabIndex = 1;
             // 
             // QueueList
             // 
             QueueList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] { FileName });
             QueueList.Dock = System.Windows.Forms.DockStyle.Fill;
-            QueueList.HideSelection = false;
             QueueList.Location = new System.Drawing.Point(0, 0);
-            QueueList.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+            QueueList.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             QueueList.Name = "QueueList";
             QueueList.ShowItemToolTips = true;
-            QueueList.Size = new System.Drawing.Size(264, 724);
+            QueueList.Size = new System.Drawing.Size(767, 335);
             QueueList.TabIndex = 0;
             QueueList.UseCompatibleStateImageBehavior = false;
             QueueList.View = System.Windows.Forms.View.Details;
@@ -159,12 +159,11 @@
             // 
             ReferenceImageListView.CheckBoxes = true;
             ReferenceImageListView.Dock = System.Windows.Forms.DockStyle.Fill;
-            ReferenceImageListView.HideSelection = false;
             ReferenceImageListView.LargeImageList = ReferenceImageList;
             ReferenceImageListView.Location = new System.Drawing.Point(0, 0);
-            ReferenceImageListView.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+            ReferenceImageListView.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             ReferenceImageListView.Name = "ReferenceImageListView";
-            ReferenceImageListView.Size = new System.Drawing.Size(1446, 724);
+            ReferenceImageListView.Size = new System.Drawing.Size(153, 335);
             ReferenceImageListView.SmallImageList = ReferenceImageList;
             ReferenceImageListView.TabIndex = 0;
             ReferenceImageListView.UseCompatibleStateImageBehavior = false;
@@ -173,7 +172,7 @@
             // 
             // ReferenceImageList
             // 
-            ReferenceImageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            ReferenceImageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth16Bit;
             ReferenceImageList.ImageSize = new System.Drawing.Size(256, 256);
             ReferenceImageList.TransparentColor = System.Drawing.Color.Transparent;
             // 
@@ -181,22 +180,22 @@
             // 
             StatusBar.ImageScalingSize = new System.Drawing.Size(32, 32);
             StatusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { StatusBarProgressBar, StatusBarLabel });
-            StatusBar.Location = new System.Drawing.Point(0, 852);
+            StatusBar.Location = new System.Drawing.Point(0, 395);
             StatusBar.Name = "StatusBar";
-            StatusBar.Padding = new System.Windows.Forms.Padding(2, 0, 30, 0);
-            StatusBar.Size = new System.Drawing.Size(1733, 38);
+            StatusBar.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
+            StatusBar.Size = new System.Drawing.Size(933, 22);
             StatusBar.TabIndex = 2;
             StatusBar.Text = "StatusBar";
             // 
             // StatusBarProgressBar
             // 
             StatusBarProgressBar.Name = "StatusBarProgressBar";
-            StatusBarProgressBar.Size = new System.Drawing.Size(217, 26);
+            StatusBarProgressBar.Size = new System.Drawing.Size(117, 16);
             // 
             // StatusBarLabel
             // 
             StatusBarLabel.Name = "StatusBarLabel";
-            StatusBarLabel.Size = new System.Drawing.Size(0, 28);
+            StatusBarLabel.Size = new System.Drawing.Size(0, 17);
             // 
             // ContainerPanel
             // 
@@ -204,41 +203,41 @@
             ContainerPanel.Controls.Add(ActionBarPanel);
             ContainerPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             ContainerPanel.Location = new System.Drawing.Point(0, 0);
-            ContainerPanel.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+            ContainerPanel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             ContainerPanel.Name = "ContainerPanel";
-            ContainerPanel.Padding = new System.Windows.Forms.Padding(0, 50, 0, 0);
-            ContainerPanel.Size = new System.Drawing.Size(1733, 852);
+            ContainerPanel.Padding = new System.Windows.Forms.Padding(0, 23, 0, 0);
+            ContainerPanel.Size = new System.Drawing.Size(933, 395);
             ContainerPanel.TabIndex = 4;
             // 
             // MainPanel
             // 
             MainPanel.Controls.Add(FileBrowserSplitContainer);
             MainPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            MainPanel.Location = new System.Drawing.Point(0, 50);
-            MainPanel.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+            MainPanel.Location = new System.Drawing.Point(0, 23);
+            MainPanel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             MainPanel.Name = "MainPanel";
-            MainPanel.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
-            MainPanel.Size = new System.Drawing.Size(1733, 736);
+            MainPanel.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            MainPanel.Size = new System.Drawing.Size(933, 341);
             MainPanel.TabIndex = 1;
             // 
             // ActionBarPanel
             // 
             ActionBarPanel.Controls.Add(ProcessQueueButton);
             ActionBarPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            ActionBarPanel.Location = new System.Drawing.Point(0, 786);
-            ActionBarPanel.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+            ActionBarPanel.Location = new System.Drawing.Point(0, 364);
+            ActionBarPanel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             ActionBarPanel.Name = "ActionBarPanel";
-            ActionBarPanel.Size = new System.Drawing.Size(1733, 66);
+            ActionBarPanel.Size = new System.Drawing.Size(933, 31);
             ActionBarPanel.TabIndex = 5;
             // 
             // ProcessQueueButton
             // 
             ProcessQueueButton.AutoSize = true;
             ProcessQueueButton.Dock = System.Windows.Forms.DockStyle.Right;
-            ProcessQueueButton.Location = new System.Drawing.Point(1395, 0);
-            ProcessQueueButton.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+            ProcessQueueButton.Location = new System.Drawing.Point(751, 0);
+            ProcessQueueButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             ProcessQueueButton.Name = "ProcessQueueButton";
-            ProcessQueueButton.Size = new System.Drawing.Size(338, 66);
+            ProcessQueueButton.Size = new System.Drawing.Size(182, 31);
             ProcessQueueButton.TabIndex = 0;
             ProcessQueueButton.Text = "Process Queue";
             ProcessQueueButton.UseVisualStyleBackColor = true;
@@ -248,18 +247,18 @@
             QueueItemContextMenu.ImageScalingSize = new System.Drawing.Size(32, 32);
             QueueItemContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { QueueItemContextMenuProcess, QueueItemContextMenuRemove });
             QueueItemContextMenu.Name = "QueueItemContextMenu";
-            QueueItemContextMenu.Size = new System.Drawing.Size(175, 80);
+            QueueItemContextMenu.Size = new System.Drawing.Size(118, 48);
             // 
             // QueueItemContextMenuProcess
             // 
             QueueItemContextMenuProcess.Name = "QueueItemContextMenuProcess";
-            QueueItemContextMenuProcess.Size = new System.Drawing.Size(174, 38);
+            QueueItemContextMenuProcess.Size = new System.Drawing.Size(117, 22);
             QueueItemContextMenuProcess.Text = "Process";
             // 
             // QueueItemContextMenuRemove
             // 
             QueueItemContextMenuRemove.Name = "QueueItemContextMenuRemove";
-            QueueItemContextMenuRemove.Size = new System.Drawing.Size(174, 38);
+            QueueItemContextMenuRemove.Size = new System.Drawing.Size(117, 22);
             QueueItemContextMenuRemove.Text = "Remove";
             // 
             // QueueListContextMenu
@@ -267,30 +266,31 @@
             QueueListContextMenu.ImageScalingSize = new System.Drawing.Size(32, 32);
             QueueListContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { QueueListContextMenuRemove, QueueListContextMenuProcess });
             QueueListContextMenu.Name = "QueueListContextMenu";
-            QueueListContextMenu.Size = new System.Drawing.Size(247, 80);
+            QueueListContextMenu.Size = new System.Drawing.Size(153, 48);
             // 
             // QueueListContextMenuRemove
             // 
             QueueListContextMenuRemove.Name = "QueueListContextMenuRemove";
-            QueueListContextMenuRemove.Size = new System.Drawing.Size(246, 38);
+            QueueListContextMenuRemove.Size = new System.Drawing.Size(152, 22);
             QueueListContextMenuRemove.Text = "Remove All";
             // 
             // QueueListContextMenuProcess
             // 
             QueueListContextMenuProcess.Name = "QueueListContextMenuProcess";
-            QueueListContextMenuProcess.Size = new System.Drawing.Size(246, 38);
+            QueueListContextMenuProcess.Size = new System.Drawing.Size(152, 22);
             QueueListContextMenuProcess.Text = "Process Queue";
             // 
             // MainForm
             // 
-            AutoScaleDimensions = new System.Drawing.SizeF(13F, 32F);
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(1733, 890);
+            ClientSize = new System.Drawing.Size(933, 417);
             Controls.Add(Menu);
             Controls.Add(ContainerPanel);
             Controls.Add(StatusBar);
+            Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = Menu;
-            Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
+            Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             Name = "MainForm";
             Text = "BananaSplit";
             Load += MainForm_Load;
@@ -320,25 +320,25 @@
         private System.Windows.Forms.ToolStripMenuItem AboutMenuItem;
         private System.Windows.Forms.SplitContainer FileBrowserSplitContainer;
         private System.Windows.Forms.ImageList ReferenceImageList;
-        private System.Windows.Forms.ListView QueueList;
         private System.Windows.Forms.ToolStripMenuItem FileMenuDropdown;
         private System.Windows.Forms.ToolStripMenuItem AddFilesToQueueMenuItem;
         private System.Windows.Forms.ToolStripMenuItem AddFolderToQueueMenuItem;
         private System.Windows.Forms.ColumnHeader FileName;
         private System.Windows.Forms.ListView ReferenceImageListView;
-        private System.Windows.Forms.StatusStrip StatusBar;
-        private System.Windows.Forms.ToolStripProgressBar StatusBarProgressBar;
-        private System.Windows.Forms.ToolStripStatusLabel StatusBarLabel;
         private System.Windows.Forms.Panel ContainerPanel;
         private System.Windows.Forms.Panel ActionBarPanel;
         private System.Windows.Forms.Panel MainPanel;
         private System.Windows.Forms.Button ProcessQueueButton;
-        private System.Windows.Forms.ContextMenuStrip QueueItemContextMenu;
         private System.Windows.Forms.ToolStripMenuItem QueueItemContextMenuRemove;
         private System.Windows.Forms.ToolStripMenuItem QueueItemContextMenuProcess;
-        private System.Windows.Forms.ContextMenuStrip QueueListContextMenu;
         private System.Windows.Forms.ToolStripMenuItem QueueListContextMenuRemove;
         private System.Windows.Forms.ToolStripMenuItem QueueListContextMenuProcess;
+        public System.Windows.Forms.ListView QueueList;
+        public System.Windows.Forms.ContextMenuStrip QueueItemContextMenu;
+        public System.Windows.Forms.ContextMenuStrip QueueListContextMenu;
+        public System.Windows.Forms.StatusStrip StatusBar;
+        public System.Windows.Forms.ToolStripProgressBar StatusBarProgressBar;
+        public System.Windows.Forms.ToolStripStatusLabel StatusBarLabel;
     }
 }
 
