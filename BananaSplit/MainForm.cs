@@ -752,7 +752,7 @@ namespace BananaSplit
                     name = name.Replace(oldText, newText);
                     break;
                 case RenameType.Increment:
-                    string numPattern = @"(S\d{2}E)(?'num'\d{2})(-E\d{2})?";
+                    string numPattern = @"(S\d{2,}E)(?'num'\d{2,})(-E\d{2,})?";
                     name = Regex.Replace(
                         name,
                         numPattern,
