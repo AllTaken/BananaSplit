@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace BananaSplit
 {
@@ -139,7 +141,7 @@ namespace BananaSplit
         public ICollection<BlackFrame> DetectBlackFrameIntervals(string filePath, double blackFrameDuration, double blackFrameThreshold, double blackFramePixelThreshold, DataReceivedEventHandler outputHandler)
         {
             var frames = new List<BlackFrame>();
-
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-US");
             Process.StartInfo.FileName = "ffmpeg.exe";
             Process.StartInfo.RedirectStandardError = true;
             Process.StartInfo.Arguments = $"-i \"{filePath}\" -vf blackdetect=d={blackFrameDuration}:pic_th={blackFrameThreshold}:pix_th={blackFramePixelThreshold} -an -f null -y /NUL";
