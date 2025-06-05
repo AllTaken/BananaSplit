@@ -13,7 +13,6 @@
     <None Remove="mkvmerge.exe" />
     <None Remove="mkvpropedit.exe" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="WindowsAPICodePack" Version="1.1.3" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">

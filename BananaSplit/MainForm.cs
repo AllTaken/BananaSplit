@@ -1,5 +1,4 @@
 ﻿using BananaSplit.Extensions;
-using Microsoft.WindowsAPICodePack.Taskbar;
 
 using System;
 using System.Collections.Generic;
@@ -377,9 +376,6 @@ namespace BananaSplit
                             value = maximum - 1;
 
                         StatusBarProgressBar.Value = value;
-
-                        TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
-                        TaskbarManager.Instance.SetProgressValue(value, maximum);
                     }
                 )
             );
@@ -395,8 +391,6 @@ namespace BananaSplit
                         StatusBarProgressBar.Maximum = 1;
 
                         StatusBarProgressBar.Value = 0;
-                        TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
-                        TaskbarManager.Instance.SetProgressValue(0, 1);
                     }
                 )
             );
