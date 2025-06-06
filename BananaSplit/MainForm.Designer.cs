@@ -133,7 +133,7 @@
             // 
             FileBrowserSplitContainer.Panel2.Controls.Add(ReferenceImageListView);
             FileBrowserSplitContainer.Size = new System.Drawing.Size(925, 335);
-            FileBrowserSplitContainer.SplitterDistance = 767;
+            FileBrowserSplitContainer.SplitterDistance = 700;
             FileBrowserSplitContainer.SplitterWidth = 5;
             FileBrowserSplitContainer.TabIndex = 1;
             // 
@@ -145,7 +145,7 @@
             QueueList.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             QueueList.Name = "QueueList";
             QueueList.ShowItemToolTips = true;
-            QueueList.Size = new System.Drawing.Size(767, 335);
+            QueueList.Size = new System.Drawing.Size(700, 335);
             QueueList.TabIndex = 0;
             QueueList.UseCompatibleStateImageBehavior = false;
             QueueList.View = System.Windows.Forms.View.Details;
@@ -163,7 +163,7 @@
             ReferenceImageListView.Location = new System.Drawing.Point(0, 0);
             ReferenceImageListView.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             ReferenceImageListView.Name = "ReferenceImageListView";
-            ReferenceImageListView.Size = new System.Drawing.Size(153, 335);
+            ReferenceImageListView.Size = new System.Drawing.Size(220, 335);
             ReferenceImageListView.SmallImageList = ReferenceImageList;
             ReferenceImageListView.TabIndex = 0;
             ReferenceImageListView.UseCompatibleStateImageBehavior = false;
@@ -291,8 +291,10 @@
             Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = Menu;
             Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            MinimumSize = new System.Drawing.Size(300, 200);
             Name = "MainForm";
             Text = "BananaSplit";
+            FormClosing += MainForm_FormClosing;
             Load += MainForm_Load;
             Menu.ResumeLayout(false);
             Menu.PerformLayout();

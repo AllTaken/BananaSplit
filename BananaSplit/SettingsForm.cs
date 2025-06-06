@@ -23,8 +23,7 @@ namespace BananaSplit
 
             AddEventHandlers();
 
-            Settings = settings;
-            Settings.Load();
+            Settings = settings;            
 
             ApplySettings();
 
@@ -42,12 +41,12 @@ namespace BananaSplit
             FFMPEGArgumentsInput.Text = Settings.FmpegArguments;
             ProcessTypeComboBox.SelectedItem = Settings.ProcessType.GetDisplayName();
             FindTextBox.Text = Settings.RenameFindText;
-            NewTextTextBox.Text = Settings.RenameNewText;
             RenameTypeComboBox.SelectedItem = Settings.RenameType.GetDisplayName();
             RenameOriginalCheckBox.Checked = Settings.RenameOriginal;
             MultiplierInput.Value = Settings.IncrementMultiplier;
             StartIndexInput.Value = Settings.StartIndex;
             PaddingInput.Value = Settings.Padding;
+            NewTextTextBox.Text = Settings.RenameNewText;
         }
 
         private void AddEventHandlers()

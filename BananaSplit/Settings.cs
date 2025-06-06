@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
+using System.Windows.Forms;
 
 namespace BananaSplit
 {
@@ -30,8 +31,9 @@ namespace BananaSplit
     }
 
 
-    public class Settings(IMapper mapper)
+    public class Settings
     {
+        private readonly IMapper mapper;
 
         public double BlackFrameDuration { get; set; } = 0.04;
         public double BlackFrameThreshold { get; set; } = 0.98;
@@ -48,6 +50,23 @@ namespace BananaSplit
         public int IncrementMultiplier { get; set; } = 2;
         public int StartIndex { get; set; } = 1;
         public int Padding { get; set; } = 2;
+        public int SplitterDistance { get; set; } = 700;
+        public int? Top { get; set; } = null;
+        public int? Left { get; set; } = null;
+        public int? Width { get; set; } = null;
+        public int? Height { get; set; } = null;
+        public FormWindowState? WindowState { get; set; }
+
+        public Settings(IMapper mapper)
+        {            
+            this.mapper = mapper;
+            Load();
+        }
+
+        [JsonConstructor]
+        protected Settings()
+        {            
+        }
 
         public void Load()
         {

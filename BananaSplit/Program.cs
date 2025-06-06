@@ -19,8 +19,7 @@ namespace BananaSplit
 
             var host = CreateHostBuilder().Build();
             ServiceProvider = host.Services;
-
-            Application.Run(ServiceProvider.GetRequiredService<MainForm>());            
+            Application.Run(ServiceProvider.GetRequiredService<MainForm>());
         }
 
         public static IServiceProvider ServiceProvider { get; private set; }

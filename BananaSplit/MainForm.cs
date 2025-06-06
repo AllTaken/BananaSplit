@@ -17,19 +17,22 @@ namespace BananaSplit
         private readonly SettingsForm SettingsForm;
         private readonly QueueManager queueManager;
         private readonly Processor processor;
+        private readonly Settings settings;
         private readonly List<object> controlsToLock;
 
         public List<QueueItem> QueueItems { get; set; } = [];
 
-        public MainForm(SettingsForm settingsForm, QueueManager queueManager, StatusBarManager statusBarManager, LogForm logForm, Processor processor)
+        public MainForm(SettingsForm settingsForm, QueueManager queueManager, StatusBarManager statusBarManager, LogForm logForm, Processor processor, Settings settings)
         {
-            InitializeComponent();            
+            InitializeComponent();
             SettingsForm = settingsForm;
             queueManager.MainForm = this;
             statusBarManager.MainForm = this;
             this.queueManager = queueManager;
             logForm.MainForm = this;
             this.processor = processor;
+            this.settings = settings;
+            ApplySettings();
             controlsToLock = [
                 ProcessQueueButton,
                 QueueListContextMenuProcess,
@@ -39,6 +42,18 @@ namespace BananaSplit
                 AddFilesToQueueMenuItem,
                 AddFolderToQueueMenuItem
             ];
+        }
+
+        private void ApplySettings()
+        {
+            FileBrowserSplitContainer.SplitterDistance = settings.SplitterDistance;
+            if (settings.Top.HasValue)
+                StartPosition = FormStartPosition.Manual;
+            Top = settings.Top ?? Top;
+            Left = settings.Left ?? Left;
+            Width = settings.Width ?? Width;
+            Height = settings.Height ?? Height;
+            WindowState = settings.WindowState ?? WindowState;
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -169,6 +184,23 @@ namespace BananaSplit
                     QueueItems.Remove(queueItem);
                 }
             }
+        }
+
+        internal void SaveSettings()
+        {
+            settings.WindowState = WindowState;
+            WindowState = FormWindowState.Normal; // Ensure the window is not minimized or maximized when saving position and size
+            settings.Top = Top;
+            settings.Left = Left;
+            settings.Width = Width;
+            settings.Height = Height;
+            settings.SplitterDistance = FileBrowserSplitContainer.SplitterDistance;
+            settings.Save();
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            SaveSettings();
         }
     }
 }
