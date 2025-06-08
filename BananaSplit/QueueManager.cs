@@ -108,7 +108,7 @@ public class QueueManager(Scanner scanner)
 
     public void AddFilesToQueue(string[] files)
     {
-        if (files == null || files.Length == 0 || !files.Select(AddToQueue).Any(added => true))
+        if (files == null || files.Length == 0 || !files.Select(AddToQueue).ToList().Any(added => true))
             return;
 
         scanner.StartScanningThread(AddItemsToQueueList, MainForm.QueueItems);
