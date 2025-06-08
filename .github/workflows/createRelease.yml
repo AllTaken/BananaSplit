@@ -11,6 +11,8 @@ jobs:
     permissions:
       contents: write
     steps:
+    - name: setup 7-Zip action
+      uses: milliewalky/setup-7-zip@v1
     - uses: actions/checkout@v4
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -24,10 +26,11 @@ jobs:
       run: dotnet publish -p:PublishProfile=FolderProfile
     - name: Test
       run: dotnet test --no-build --verbosity normal
+    - name: Compress Artifacts
+      run: 7z a -bd -mx9 -md24m -mfb128 -mmt2 BananaSplit/bin/Release/net8.0-windows/publish/win-x64.7z BananaSplit/bin/Release/net8.0-windows/publish/win-x64/*.*
     - name: Create Release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "BananaSplit/bin/Release/net8.0-windows/publish/win-x64/*.zip"
-        bodyFile: "body.md" 
+        artifacts: "BananaSplit/bin/Release/net8.0-windows/publish/win-x64.7z"        
         artifactErrorsFailBuild: true
         draft: true
