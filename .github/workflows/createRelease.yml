@@ -1,0 +1,33 @@
+name: Releases
+
+on: 
+  push:
+    tags:
+    - 'Version*'
+
+jobs: 
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build  --no-restore
+    - name: Publish
+      run: dotnet publish -p:PublishProfile=FolderProfile
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+    - name: Create Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "BananaSplit/bin/Release/net8.0-windows/publish/win-x64/*.zip"
+        bodyFile: "body.md" 
+        artifactErrorsFailBuild: true
+        draft: true

@@ -115,7 +115,7 @@ namespace BananaSplit
 
         private void RenderReferenceImagesListView(object sender, EventArgs e)
         {
-            if (QueueList.SelectedItems.Count <= 0)
+            if (QueueList.SelectedItems.Count != 1)
             {
                 ReferenceImageListView.Clear();
                 return;
