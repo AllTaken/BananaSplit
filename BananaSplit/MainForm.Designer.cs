@@ -170,6 +170,7 @@
             ReferenceImageListView.ThumbnailSize = new System.Drawing.Size(350, 350);
             ReferenceImageListView.UseWIC = true;
             ReferenceImageListView.ItemCheckBoxClick += ReferenceImageListView_ItemCheckBoxClick;
+            ReferenceImageListView.ItemDoubleClick += ReferenceImageListView_ItemDoubleClick;
             ReferenceImageListView.SelectionChanged += ReferenceImageListView_SelectedIndexChanged;
             ReferenceImageListView.MouseEnter += ReferenceImageListView_MouseEnter;
             ReferenceImageListView.MouseLeave += ReferenceImageListView_MouseLeave;

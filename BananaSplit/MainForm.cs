@@ -22,6 +22,7 @@ namespace BananaSplit
         private readonly Processor processor;
         private readonly Settings settings;
         private readonly List<object> controlsToLock;
+        private string vlcPath;
 
         // P/Invoke declarations
         [DllImport("user32.dll")]
@@ -51,6 +52,7 @@ namespace BananaSplit
         {
             InitializeComponent();
             InitCacheDirectory();
+            GetVlcPath();
 
             ReferenceImageListView.MouseWheel += ReferenceImageListViewMouseWheelHandler;
             Application.AddMessageFilter(this);
@@ -73,6 +75,14 @@ namespace BananaSplit
             ];
         }
 
+        private void GetVlcPath()
+        {
+            vlcPath = Registry.GetValue(@"HKEY_CLASSES_ROOT\Applications\vlc.exe\shell\open\command", "", null) as string; // Ensure VLC is registered
+            if (vlcPath?.StartsWith('"') == true)
+            {
+                vlcPath = vlcPath[1..vlcPath.IndexOf('"', 1)]; // Extract path from quotes
+            }
+        }
 
         private static void InitCacheDirectory()
         {
@@ -268,6 +278,23 @@ namespace BananaSplit
         {
             HintLabel.Text = "";
         }
+
+        private void ReferenceImageListView_ItemDoubleClick(object sender, ItemClickEventArgs e)
+        {
+            if (vlcPath == null)
+                return;
+
+            try
+            {
+                var filename = ((QueueItem)QueueList.FocusedItem.Tag).FileName;
+                var end = ((BlackFrame)e.Item.Tag).End.TotalSeconds; 
+                
+                Process.Start(vlcPath, $"--start-time={end} \"{filename}\"");
+            }
+            catch
+            {
+                // Silent
+            }
 
         }
     }
