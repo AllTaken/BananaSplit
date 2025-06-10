@@ -38,7 +38,7 @@ namespace BananaSplit
         public double BlackFrameDuration { get; set; } = 0.04;
         public double BlackFrameThreshold { get; set; } = 0.98;
         public double BlackFramePixelThreshold { get; set; } = 0.15;
-        public string FmpegArguments { get; set; } = "-i \"{source}\" -ss {start} -t {duration} -c:v libx264 -crf 18 -preset slow -c:a copy -map 0 \"{destination}\"";
+        public string FmpegArguments { get; set; } = "-i \"{source}\" -ss {start} -t {duration} -c:v copy -c:a copy -map 0 \"{destination}\"";
         public ProcessingType ProcessType { get; set; } = ProcessingType.MkvToolNixSplit;
         public bool ShowLog { get; set; } = false;
         public bool DeleteOriginal { get; set; } = false;

@@ -38,6 +38,7 @@ public class Renamer(Settings settings)
     {
         var path = Path.GetDirectoryName(fileName);
         var name = Path.GetFileNameWithoutExtension(fileName);
+        var extension = Path.GetExtension(fileName);
         var original = name;
 
         var oldText = settings.RenameFindText;
@@ -53,12 +54,12 @@ public class Renamer(Settings settings)
             name += "-" + index;
         }
 
-        var newName = Path.Combine(path, name + ".mkv");
+        var newName = Path.Combine(path, name + extension);
 
         // Rename again if there's already a file with that name
         if (File.Exists(newName))
         {
-            newName = Path.Combine(path, name + DateTimeOffset.Now.ToUnixTimeSeconds() + ".mkv");
+            newName = Path.Combine(path, name + DateTimeOffset.Now.ToUnixTimeSeconds() + extension);
         }
 
         return newName;
