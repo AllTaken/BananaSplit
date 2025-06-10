@@ -1,6 +1,6 @@
 # BananaSplit
 
-BananaSplit is an application built in .NET Core WinForms that can be used to split video files based on ffmpeg's black frame detection feature.
+BananaSplit is an application built in .NET WinForms that can be used to split video files based on ffmpeg's black frame detection feature.
 
 ## Installation
 
@@ -9,17 +9,21 @@ To install BananaSplit, simply extract the zip file to a location of your choosi
 ## Known Limitations
 
  - The application in its current state is not very thread-safe. Some processes are spun off into separate threads so the application does not become unresponsive, but in general you should avoid adding files or encoding files if the application is already scanning for black frames or currently encoding a file.
- - There is no special naming done. Each part will be appended with something like `-2` at the end of the filename. I use [Bulk Rename Utility](https://www.bulkrenameutility.co.uk/) to name everything when the splitting is complete.
- - Windows only. Maybe this will change in the future, but I wanted to get this up and running quickly.
- - The default ffmpeg arguments is set to reencode using `-crf 18`. This has a fairly unnoticeable effect on overall quality.
- - Every file gets repackaged to MKV
- - Reference frames are generated when the file is added to the queue and are then loaded into RAM. This is fairly dirty and may end up consuming more RAM than desired.
- - Black frame duration, threshold, and delete original settings are currently non-functioning
+ - Windows only. 
 
 ### Version
-3.1.0
+4.0.3
 
 ### Changelog
+
+#### 4.0.3
+Pending
+
+#### 4.0.2
+Pending
+
+#### 4.0.0
+Pending
 
 #### 3.1.0
 
