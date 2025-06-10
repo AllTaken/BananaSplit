@@ -71,7 +71,13 @@ public partial class Scanner(StatusBarManager statusBarManager, Settings setting
 
                 statusBarManager.SetStatusBarLabelValue($"Generating frame {frameNum} of {item.BlackFrames.Count} at {referenceFramePosition}");
                 frame.ReferenceFrame = new ReferenceFrame();
-                frame.ReferenceFrame.Bitmap = Utilities.BytesToImage(ffmpeg.ExtractFrame(item.FileName, referenceFramePosition, FfmpegLog));
+                var image = Utilities.BytesToImage(ffmpeg.ExtractFrame(item.FileName, referenceFramePosition, FfmpegLog));
+                if (image != null)
+                {
+                    image.Save(@$"imagecache\{frame.Id}.png");
+                    frame.ReferenceFrame.ImageFile = @$"imagecache\{frame.Id}.png";
+                }                
+
                 frameNum++;
             }
 

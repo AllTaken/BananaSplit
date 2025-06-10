@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -108,8 +109,10 @@ public class QueueManager(Scanner scanner)
 
     public void AddFilesToQueue(string[] files)
     {
+#pragma warning disable S2971 // LINQ expressions should be simplified - but ToList() is needed to force enumeration before "Any" can short-circuit
         if (files == null || files.Length == 0 || !files.Select(AddToQueue).ToList().Any(added => true))
             return;
+#pragma warning restore S2971 // LINQ expressions should be simplified - but ToList() is needed to force enumeration before "Any" can short-circuit
 
         scanner.StartScanningThread(AddItemsToQueueList, MainForm.QueueItems);
     }

@@ -40,11 +40,11 @@
             FileBrowserSplitContainer = new System.Windows.Forms.SplitContainer();
             QueueList = new System.Windows.Forms.ListView();
             FileName = new System.Windows.Forms.ColumnHeader();
-            ReferenceImageListView = new System.Windows.Forms.ListView();
-            ReferenceImageList = new System.Windows.Forms.ImageList(components);
+            ReferenceImageListView = new Manina.Windows.Forms.ImageListView();
             StatusBar = new System.Windows.Forms.StatusStrip();
             StatusBarProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             StatusBarLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            HintLabel = new System.Windows.Forms.ToolStripStatusLabel();
             ContainerPanel = new System.Windows.Forms.Panel();
             MainPanel = new System.Windows.Forms.Panel();
             ActionBarPanel = new System.Windows.Forms.Panel();
@@ -157,29 +157,27 @@
             // 
             // ReferenceImageListView
             // 
-            ReferenceImageListView.CheckBoxes = true;
             ReferenceImageListView.Dock = System.Windows.Forms.DockStyle.Fill;
-            ReferenceImageListView.LargeImageList = ReferenceImageList;
             ReferenceImageListView.Location = new System.Drawing.Point(0, 0);
             ReferenceImageListView.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            ReferenceImageListView.MultiSelect = false;
             ReferenceImageListView.Name = "ReferenceImageListView";
+            ReferenceImageListView.PersistentCacheDirectory = "";
+            ReferenceImageListView.PersistentCacheSize = 100L;
+            ReferenceImageListView.ShowCheckBoxes = true;
             ReferenceImageListView.Size = new System.Drawing.Size(220, 335);
-            ReferenceImageListView.SmallImageList = ReferenceImageList;
             ReferenceImageListView.TabIndex = 0;
-            ReferenceImageListView.UseCompatibleStateImageBehavior = false;
-            ReferenceImageListView.ItemChecked += ReferenceImageListView_SelectedIndexChanged;
-            ReferenceImageListView.SelectedIndexChanged += ReferenceImageListView_SelectedIndexChanged;
-            // 
-            // ReferenceImageList
-            // 
-            ReferenceImageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth16Bit;
-            ReferenceImageList.ImageSize = new System.Drawing.Size(256, 256);
-            ReferenceImageList.TransparentColor = System.Drawing.Color.Transparent;
+            ReferenceImageListView.ThumbnailSize = new System.Drawing.Size(350, 350);
+            ReferenceImageListView.UseWIC = true;
+            ReferenceImageListView.ItemCheckBoxClick += ReferenceImageListView_ItemCheckBoxClick;
+            ReferenceImageListView.SelectionChanged += ReferenceImageListView_SelectedIndexChanged;
+            ReferenceImageListView.MouseEnter += ReferenceImageListView_MouseEnter;
+            ReferenceImageListView.MouseLeave += ReferenceImageListView_MouseLeave;
             // 
             // StatusBar
             // 
             StatusBar.ImageScalingSize = new System.Drawing.Size(32, 32);
-            StatusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { StatusBarProgressBar, StatusBarLabel });
+            StatusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { StatusBarProgressBar, StatusBarLabel, HintLabel });
             StatusBar.Location = new System.Drawing.Point(0, 395);
             StatusBar.Name = "StatusBar";
             StatusBar.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
@@ -196,6 +194,14 @@
             // 
             StatusBarLabel.Name = "StatusBarLabel";
             StatusBarLabel.Size = new System.Drawing.Size(0, 17);
+            // 
+            // HintLabel
+            // 
+            HintLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            HintLabel.Name = "HintLabel";
+            HintLabel.Size = new System.Drawing.Size(797, 17);
+            HintLabel.Spring = true;
+            HintLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // ContainerPanel
             // 
@@ -321,12 +327,10 @@
         private System.Windows.Forms.ToolStripMenuItem SettingsMenuItem;
         private System.Windows.Forms.ToolStripMenuItem AboutMenuItem;
         private System.Windows.Forms.SplitContainer FileBrowserSplitContainer;
-        private System.Windows.Forms.ImageList ReferenceImageList;
         private System.Windows.Forms.ToolStripMenuItem FileMenuDropdown;
         private System.Windows.Forms.ToolStripMenuItem AddFilesToQueueMenuItem;
         private System.Windows.Forms.ToolStripMenuItem AddFolderToQueueMenuItem;
         private System.Windows.Forms.ColumnHeader FileName;
-        private System.Windows.Forms.ListView ReferenceImageListView;
         private System.Windows.Forms.Panel ContainerPanel;
         private System.Windows.Forms.Panel ActionBarPanel;
         private System.Windows.Forms.Panel MainPanel;
@@ -341,6 +345,8 @@
         public System.Windows.Forms.StatusStrip StatusBar;
         public System.Windows.Forms.ToolStripProgressBar StatusBarProgressBar;
         public System.Windows.Forms.ToolStripStatusLabel StatusBarLabel;
+        public Manina.Windows.Forms.ImageListView ReferenceImageListView;
+        private System.Windows.Forms.ToolStripStatusLabel HintLabel;
     }
 }
 

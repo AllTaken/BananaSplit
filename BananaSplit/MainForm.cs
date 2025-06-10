@@ -1,18 +1,21 @@
 ﻿using BananaSplit.Extensions;
-
+using Manina.Windows.Forms;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
 namespace BananaSplit
 {
-    public partial class MainForm : Form
+    public partial class MainForm : Form, IMessageFilter
     {
         private readonly SettingsForm SettingsForm;
         private readonly QueueManager queueManager;
@@ -20,11 +23,37 @@ namespace BananaSplit
         private readonly Settings settings;
         private readonly List<object> controlsToLock;
 
+        // P/Invoke declarations
+        [DllImport("user32.dll")]
+        private static extern IntPtr WindowFromPoint(Point pt);
+        [DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wp, IntPtr lp);
+
         public List<QueueItem> QueueItems { get; set; } = [];
+
+        public bool PreFilterMessage(ref Message m)
+        {
+            if (m.Msg == 0x20a)
+            {
+                // WM_MOUSEWHEEL, find the control at screen position m.LParam
+                Point pos = new Point(m.LParam.ToInt32() & 0xffff, m.LParam.ToInt32() >> 16);
+                IntPtr hWnd = WindowFromPoint(pos);
+                if (hWnd != IntPtr.Zero && hWnd != m.HWnd && Control.FromHandle(hWnd) != null)
+                {
+                    SendMessage(hWnd, m.Msg, m.WParam, m.LParam);
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public MainForm(SettingsForm settingsForm, QueueManager queueManager, StatusBarManager statusBarManager, LogForm logForm, Processor processor, Settings settings)
         {
             InitializeComponent();
+            InitCacheDirectory();
+
+            ReferenceImageListView.MouseWheel += ReferenceImageListViewMouseWheelHandler;
+            Application.AddMessageFilter(this);
             SettingsForm = settingsForm;
             queueManager.MainForm = this;
             statusBarManager.MainForm = this;
@@ -44,6 +73,20 @@ namespace BananaSplit
             ];
         }
 
+
+        private static void InitCacheDirectory()
+        {
+            if (Directory.Exists("imagecache"))
+                Directory.Delete("imagecache", true); // Clear cache on startup
+            Directory.CreateDirectory("imagecache");
+        }
+
+        private void ReferenceImageListViewMouseWheelHandler(object sender, MouseEventArgs e)
+        {
+            if (ModifierKeys.HasFlag(Keys.Control))
+                ReferenceImageListView.ThumbnailSize = new Size(ReferenceImageListView.ThumbnailSize.Width + e.Delta / 10, ReferenceImageListView.ThumbnailSize.Height + e.Delta / 10);
+        }
+
         private void ApplySettings()
         {
             FileBrowserSplitContainer.SplitterDistance = settings.SplitterDistance;
@@ -54,6 +97,8 @@ namespace BananaSplit
             Width = settings.Width ?? Width;
             Height = settings.Height ?? Height;
             WindowState = settings.WindowState ?? WindowState;
+            ReferenceImageListView.ThumbnailSize = new(settings.ThumbnailSize, settings.ThumbnailSize);
+            queueManager.AutoSizeQueueList(QueueList, new());
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -117,7 +162,7 @@ namespace BananaSplit
         {
             if (QueueList.SelectedItems.Count != 1)
             {
-                ReferenceImageListView.Clear();
+                ReferenceImageListView.Items.Clear();
                 return;
             }
 
@@ -125,20 +170,15 @@ namespace BananaSplit
 
             foreach (var frame in selectedItem.BlackFrames)
             {
-                if (frame.ReferenceFrame.Bitmap != null)
+                if (frame.ReferenceFrame.ImageFile != null)
                 {
-                    var bmp = frame.ReferenceFrame.Bitmap;
-
-                    ReferenceImageList.Add(bmp, frame.Id.ToString());
-
-                    ReferenceImageListView.Items.Add(new ListViewItem()
+                    var item = new ImageListViewItem(frame.ReferenceFrame.ImageFile, frame.End.ToString("g"))
                     {
-                        ImageKey = frame.Id.ToString(),
                         Tag = frame,
-                        Name = frame.Id.ToString(),
-                        Text = frame.End.ToString(),
                         Checked = frame.Selected
-                    });
+                    };
+
+                    ReferenceImageListView.Items.Add(item);
                 }
             }
         }
@@ -150,7 +190,7 @@ namespace BananaSplit
 
         private void ReferenceImageListView_SelectedIndexChanged(object sender, EventArgs e)
         {
-            foreach (ListViewItem item in ReferenceImageListView.Items)
+            foreach (var item in ReferenceImageListView.Items)
             {
                 if (item.Selected)
                 {
@@ -195,12 +235,40 @@ namespace BananaSplit
             settings.Width = Width;
             settings.Height = Height;
             settings.SplitterDistance = FileBrowserSplitContainer.SplitterDistance;
+            settings.ThumbnailSize = ReferenceImageListView.ThumbnailSize.Width;
             settings.Save();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             SaveSettings();
+            if (Directory.Exists("imagecache"))
+                Directory.Delete("imagecache", true); // Clear cache on shutdown
+        }
+
+        private void ReferenceImageListView_ItemCheckBoxClick(object sender, ItemEventArgs e)
+        {
+            ((BlackFrame)e.Item.Tag).Selected = e.Item.Checked;
+        }
+
+        private void ReferenceImageListView_MouseEnter(object sender, EventArgs e)
+        {
+            HintLabel.Text = "Hold Ctrl and scroll to change thumbnail size.";
+            if (vlcPath != null)
+            {
+                HintLabel.Text += " Double-click to open in VLC.";
+            }
+            else
+            {
+                HintLabel.Text += " VLC not found. Double-click will not work.";
+            }
+        }
+
+        private void ReferenceImageListView_MouseLeave(object sender, EventArgs e)
+        {
+            HintLabel.Text = "";
+        }
+
         }
     }
 }

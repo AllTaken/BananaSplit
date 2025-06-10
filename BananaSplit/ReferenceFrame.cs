@@ -6,6 +6,6 @@ namespace BananaSplit
     public class ReferenceFrame
     {
         public DateTime ExtractedOn { get; set; }
-        public Bitmap Bitmap { get; set; } = null;
+        public string ImageFile { get; set; } = null;
     }
 }

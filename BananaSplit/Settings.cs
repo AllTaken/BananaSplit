@@ -56,6 +56,7 @@ namespace BananaSplit
         public int? Width { get; set; } = null;
         public int? Height { get; set; } = null;
         public FormWindowState? WindowState { get; set; }
+        public int ThumbnailSize { get; set; } = 256;
 
         public Settings(IMapper mapper)
         {            
